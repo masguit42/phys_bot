@@ -1,7 +1,0 @@
-{
-  "proxy_url": "socks5://phobos.public.opennetwork.cc:1090",
-  "urllib3_proxy_kwargs": {
-    "username": "260807868",
-    "password": "Eh8JhpZd"
-  }
-}

@@ -48,7 +48,7 @@ RULES = '''🚩 Если собираетесь вывесить объявле�
  WAIT_FOR_EMAIL, WAIT_FOR_CODE,
  WRONG_CODE, SEND_INVITATION, *_) = range(100)
 
-ADMIN_ID = 143871296 # legolas
+ADMIN_ID = 143871296 # lego1as
 LOGS_CHANNEL_ID = -1001391309276  # No Flood. Logs
 CHANNEL_ID = -1001110086957  # Phystech.Важное
 # MAIN_CHAT_ID = 1001092483713  # Phystech. No Flood
@@ -61,7 +61,7 @@ INVITE_LINK_MSG = """
 • Channel: Phystech.Важное [#chat1001092483713]\n
 • User: v23 [@{username}] [#id{uid}]
 """
-
+# TODO: Check compatibility with relative paths.
 SMTP_SINGIN = '/home/masguit42/bot/data/singin.txt'
-BOT_TOKEN = '/home/masguit42/bot/data/token.txt'
-LOG_FILE = '/home/masguit42/bot/data/logs.txt'
+BOT_TOKEN = 'data/token.txt'
+LOG_FILE = 'data/logs.txt'

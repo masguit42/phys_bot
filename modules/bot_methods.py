@@ -42,6 +42,7 @@ logger = logging.getLogger(__name__)
 
 def main_menu(bot, update, user_data):
 
+    # Check chat is private
     if update.message.chat.type != 'private':
         print(update.message.from_user.id)
         update.message.reply_text(
@@ -49,19 +50,25 @@ def main_menu(bot, update, user_data):
             reply_markup=ReplyKeyboardRemove())
         return ConversationHandler.END
 
+    # User data primary set up
     user_data['id'] = update.message.from_user.id
     user_data = init_user_data(user_data)
 
+    # Check profile is in db
     profile_db = ProfileDB('data/main.sqlite')
     existed_profile = profile_db.get_by_id(user_data['id'])
-
+    # Fill user_data if profile exists
     if not existed_profile is None:
-        user_data = existed_profile.to_dict()
+        # TODO: log INFO Profile _id_ in db already
+        for key, value in existed_profile.to_dict().items():
+            user_data[key] = value
     else:
-        user_data['first_name'] = update.message.from_user.first_name
-        user_data['last_name'] = update.message.from_user.last_name
-        user_data['username'] = update.message.from_user.username
-        user_data['status'] = 'not_approved'
+        # TODO: log INFO Profile _id_ not in db yet
+        pass
+
+    for key in ['first_name', 'last_name', 'username']:
+        user_data[key] = (update.message.from_user[key]
+                          if user_data[key] is None else user_data[key])
 
     update.message.reply_text(
         f'Привет, {user_data["first_name"]}. '
@@ -71,7 +78,6 @@ def main_menu(bot, update, user_data):
         reply_markup=make_kb([['Добавиться в чат'],
                               ['Показать чаты', 'Показать сервисы']]),
     )
-
     return MAIN_MENU
 
 
@@ -84,7 +90,8 @@ def add_to_chat(bot, update, user_data):
                             timeout=5)
     except TelegramError:
         pass
-    except:
+    except Exception as problem:
+        # TODO: log ERROR : _problem_ with user _id_
         print('problem in add_to_chat')
     else:
         in_chat = True
@@ -93,7 +100,7 @@ def add_to_chat(bot, update, user_data):
     if False:
     # if in_chat or user_data['status'] == 'approved':
         update.message.reply_text(
-            'Вы уже были добавлены в чат. '
+            'Вы уже были добавлены в чат. \n'
             'В случае возникновения проблем, '
             'обратитесь к модератору @lego1as.',
             reply_markup=make_kb([['Показать чаты', 'Показать сервисы']])
@@ -101,7 +108,7 @@ def add_to_chat(bot, update, user_data):
         return MAIN_MENU
     else:
         update.message.reply_text(
-            'Чтобы добавить тебя в чат, необходимо удостовериться, что ты с МФТИ. '
+            'Чтобы добавить вас в чат, необходимо удостовериться, что вы с МФТИ. '
             'Напишите свою почту на домене **phystech.edu** '
             'и мы вышлем на неё секретный код. '
             'После этого, напишите сюда код с электронной почты '
@@ -127,29 +134,38 @@ def show_services(bot, update):
 
 
 def wait_for_email(bot, update, user_data):
-
     text = update.message.text
-    if re.match(r'^(\w|\.)+@phystech\.edu$', text):
-        code = gen_random_string(N_CODE)
-        user_data['email'] = text
-        concat_string = code + user_data['first_name'] + user_data['last_name']
-        user_data['user_hash'] = hash(concat_string)
-
-        message_text = f'Your invitation code is {code}.'
-        send_email(SERVER, user_data['email'], message_text)
-        update.message.reply_text(
-            f'Мы отправили письмо на почту **{user_data["email"]}**',
-            reply_markup=ReplyKeyboardRemove(),
-            parse_mode=ParseMode.MARKDOWN,
-        )
-        print(user_data)
-        return WAIT_FOR_EMAIL
+    # Check email is in db
+    if (not user_data['email'] is None) and (text != user_data['email']):
+        update.message.reply_text(f'Хммм. Есть информация, что ваша почта другая: {user_data["email"]}'
+                                  f'Скорее всего, это связано с тем, что вы вводили её ранее.'
+                                  f'Если вы опечатались или возникла другая ошибка - напишите @lego1as',
+                                  reply_markup=make_kb([['Показать чаты', 'Показать сервисы']]))
+        return MAIN_MENU
     else:
-        update.message.reply_text(
-            'Где-то ошибка, введите ещё раз, пожалуйста.',
-            reply_markup=ReplyKeyboardRemove(),
-        )
-        return ADD_TO_CHAT
+        # TODO: log INFO new email added for _id_
+
+        if re.match(r'^(\w|\.)+@phystech\.edu$', text):
+            code = gen_random_string(N_CODE)
+            user_data['email'] = text
+            concat_string = code + user_data['first_name'] + user_data['last_name']
+            user_data['user_hash'] = hash(concat_string)
+            message_text = f'Your invitation code is {code}.'
+            send_email(SERVER, user_data['email'], message_text)
+            # TODO: Solve markdown problem
+            update.message.reply_text(
+                f'Мы отправили письмо на почту **{user_data["email"]}**.\n'
+                'Пришлите код сообщением сюда.',
+                parse_mode=ParseMode.MARKDOWN,
+                reply_markup=ReplyKeyboardRemove(),
+            )
+            return WAIT_FOR_EMAIL
+        else:
+            update.message.reply_text(
+                'Где-то ошибка, введите ещё раз, пожалуйста.',
+                reply_markup=ReplyKeyboardRemove(),
+            )
+            return ADD_TO_CHAT
 
 
 def wait_for_code(bot, update, user_data):
@@ -168,12 +184,12 @@ def wait_for_code(bot, update, user_data):
     concat_string = code + user_data['first_name'] + user_data['last_name']
     hash_current = hash(concat_string)
     if hash_current == hash_standard:
-        update.message.reply_text('Проверка прошла успешно!'
-                                  f'Пожалуйста, ознакомьтесь с правилами: '
-                                  f'\n{RULES}.\n'
-                                  'Напишите "Да", если вы согласны с правилами группы.',
-                                  reply_markup=ReplyKeyboardRemove())
         user_data['status'] = "approved"
+        update.message.reply_text('Проверка прошла успешно!\n'
+                                  f'Пожалуйста, ознакомьтесь с правилами группы: \n'
+                                  f'\n{RULES}.\n'
+                                  'Напишите "Да", если вы согласны с правилами группы',
+                                  reply_markup=ReplyKeyboardRemove())
         return WAIT_FOR_CODE
     else:
         attempts_left = 3 - user_data["attempt"] % 3
@@ -188,9 +204,10 @@ def send_invitation(bot, update, user_data):
     if update.message.text == "Да":
         invite_link = bot.exportChatInviteLink(CHANNEL_ID)
         user_data['invite_link'] = invite_link
-        update.message.reply_text('Добро пожаловать в канал Физтех.Важное. '
-                                  'Внизу с правой стороны будет кнопка для перехода в чат **Phystech. No Flood**\n'
-                                  f'{invite_link}',
+        # TODO: Solve markdown problem
+        update.message.reply_text('Добро пожаловать в канал Физтех.Важное:\n'
+                                  f'{invite_link}\n'
+                                  'Внизу с правой стороны будет кнопка для перехода в чат **Phystech. No Flood**\n',
                                   reply_markup=make_kb([['Спасибо']]),
                                   parse_mode=ParseMode.MARKDOWN)
 

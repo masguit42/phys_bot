@@ -1,6 +1,8 @@
 import ssl
 import random
 import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import string
 
 from telegram import ReplyKeyboardMarkup
@@ -55,5 +57,15 @@ def get_smtp_server(file):
 
 
 def send_email(server, receiver_email, message_text):
+    # TODO: Add title of message.
+    msg = MIMEMultipart()
 
-    server.sendmail(server.user, receiver_email, message_text)
+    msg['From'] = server.user
+    msg['To'] = receiver_email
+    msg['Subject'] = "Chat Invitation"
+    msg.attach(MIMEText(message_text, 'plain'))
+
+    # server.sendmail(server.user, receiver_email, msg)
+    server.send_message(msg)
+
+    del msg

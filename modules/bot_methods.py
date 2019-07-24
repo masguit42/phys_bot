@@ -1,16 +1,9 @@
 """
-    This Bot uses the Updater class to handle the bot.
-    First, a few callback functions are defined. Then, those functions are passed to
-    the Dispatcher and registered at their respective places.
-    Then, the bot is started and runs until we press Ctrl-C on the command line.
-    Usage:
-    Example of a bot-user conversation using ConversationHandler.
-    Send /start to initiate the conversation.
-    Press Ctrl-C on the command line or send a signal to the process to stop the
-    bot.
+    This Bot is very cool.
 """
 import logging
 import re
+from time import sleep
 
 from telegram import (
     ReplyKeyboardRemove,
@@ -24,31 +17,35 @@ from .constants import (
     ADMIN_ID, LOGS_CHANNEL_ID, MAIN_CHAT_ID,
     CHANNEL_ID, CHATS, SERVICES, RULES,
     INVITE_LINK_MSG,
-    N_CODE,
+    N_CODE, N_MINUTES_PER_INVITE,
     SMTP_SINGIN, LOG_FILE)
 from .utilities import (
-    send_email,
+    send_email, check_user_in_chat,
     make_kb, gen_random_string,
-    get_smtp_server, init_user_data)
+    get_smtp_server, init_user_data,
+    check_n_wait_for_user_in_chat)
 from .db_bot import ProfileDB
 
-SERVER = get_smtp_server(SMTP_SINGIN)
+# SERVER = get_smtp_server(SMTP_SINGIN)
 
 # Enable logging
 logging.basicConfig(filename=LOG_FILE, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger('root')
 
 
 def main_menu(bot, update, user_data):
-
     # Check chat is private
     if update.message.chat.type != 'private':
         print(update.message.from_user.id)
         update.message.reply_text(
             'Этот бот не может работать в этом чяте.',
             reply_markup=ReplyKeyboardRemove())
+        LOGGER.info(f'Someone[id#{update.message.from_user.id}] starts bot in not private chat.')
         return ConversationHandler.END
+
+    LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
 
     # User data primary set up
     user_data['id'] = update.message.from_user.id
@@ -59,53 +56,81 @@ def main_menu(bot, update, user_data):
     existed_profile = profile_db.get_by_id(user_data['id'])
     # Fill user_data if profile exists
     if not existed_profile is None:
+        LOGGER.info(f'User exists in db.')
         # TODO: log INFO Profile _id_ in db already
         for key, value in existed_profile.to_dict().items():
             user_data[key] = value
     else:
         # TODO: log INFO Profile _id_ not in db yet
+        LOGGER.info(f'User not exist in db.')
         pass
 
     for key in ['first_name', 'last_name', 'username']:
         user_data[key] = (update.message.from_user[key]
                           if user_data[key] is None else user_data[key])
 
-    update.message.reply_text(
-        f'Привет, {user_data["first_name"]}. '
-        f'Этот бот поможет вам добавиться в общий чат физтехов, '
-        f'даст информацию о том, какие есть тематические '
-        f'чаты и каналы на Физтехе.',
-        reply_markup=make_kb([['Добавиться в чат'],
-                              ['Показать чаты', 'Показать сервисы']]),
-    )
-    return MAIN_MENU
+    in_chat = check_user_in_chat(bot, update)
+    if update.message.text == 'Спасибочки':
 
+        in_chat = check_n_wait_for_user_in_chat(bot, update, in_chat)
 
-def add_to_chat(bot, update, user_data):
-
-    in_chat = False
-    try:
-        bot.get_chat_member(chat_id=MAIN_CHAT_ID,
-                            user_id=update.message.from_user.id,
-                            timeout=5)
-    except TelegramError:
-        pass
-    except Exception as problem:
-        # TODO: log ERROR : _problem_ with user _id_
-        print('problem in add_to_chat')
-    else:
-        in_chat = True
+        if in_chat:
+            bot.sendMessage(chat_id=ADMIN_ID,
+                            text='New user. Revoke link please.')
+            LOGGER.info(f'Link pseudo-revoking.')
+            update.message.reply_text(
+                'Круто, теперь ты с нами!',
+                reply_markup=make_kb([['Показать чаты', 'Показать сервисы']]))
+        else:
+            update.message.reply_text(
+                'Рекомендуем пройти процедуру получения ссылки заново.\n'
+                'В случае возникновения проблем, '
+                'обратитесь к модератору @lego1as.',
+                reply_markup=make_kb([['Добавиться в чат'],
+                                      ['Показать чаты', 'Показать сервисы']])
+            )
+            LOGGER.warning(f'Unhandled behaviour in modules.bot_methods.main_menu.')
 
     # TODO: Remove debug command
-    if False:
-    # if in_chat or user_data['status'] == 'approved':
+    elif False:
+    # elif in_chat or user_data['status'] == 'approved':
+        LOGGER.info(f'User already in chat or approved.')
         update.message.reply_text(
             'Вы уже были добавлены в чат. \n'
             'В случае возникновения проблем, '
             'обратитесь к модератору @lego1as.',
             reply_markup=make_kb([['Показать чаты', 'Показать сервисы']])
         )
-        return MAIN_MENU
+    else:
+        LOGGER.info(f'User not in chat or approved yet.')
+        update.message.reply_text(
+            f'Привет, {user_data["first_name"]}. '
+            f'Этот бот поможет вам добавиться в общий чат физтехов, '
+            f'даст информацию о том, какие есть тематические '
+            f'чаты и каналы на Физтехе.',
+            reply_markup=make_kb([['Добавиться в чат'],
+                                  ['Показать чаты', 'Показать сервисы']]),
+        )
+    return MAIN_MENU
+
+
+def add_to_chat(bot, update, user_data):
+    LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
+    in_chat = check_user_in_chat(bot, update)
+
+    # TODO: Remove duplicate of code
+    # TODO: Remove debug command
+    if False:
+    # if in_chat or user_data['status'] == 'approved':
+        LOGGER = logging.getLogger(f'user#{user_data["id"]}')
+        LOGGER.info(f'User already in chat or approved.')
+        update.message.reply_text(
+            'Вы уже были добавлены в чат. \n'
+            'В случае возникновения проблем, '
+            'обратитесь к модератору @lego1as.',
+            reply_markup=make_kb([['Показать чаты', 'Показать сервисы']])
+        )
+        stage = MAIN_MENU
     else:
         update.message.reply_text(
             'Чтобы добавить вас в чат, необходимо удостовериться, что вы с МФТИ. '
@@ -116,42 +141,74 @@ def add_to_chat(bot, update, user_data):
             reply_markup=ReplyKeyboardRemove(),
             parse_mode=ParseMode.MARKDOWN,
         )
-        return ADD_TO_CHAT
+        stage = ADD_TO_CHAT
+    return stage
 
 
 def show_chats(bot, update):
-
+    # TODO: Maybe delete this log
+    LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
+    LOGGER.info(f'Show chats.')
     update.message.reply_text(CHATS,
                               reply_markup=make_kb([['Добавиться в чат', 'Показать сервисы']]))
     return MAIN_MENU
 
 
 def show_services(bot, update):
-
+    # TODO: Maybe delete this log
+    LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
+    LOGGER.info(f'Show services.')
     update.message.reply_text(SERVICES,
                               reply_markup=make_kb([['Добавиться в чат', 'Показать чаты']]))
     return MAIN_MENU
 
 
+def reply_start(bot, update):
+    LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
+    LOGGER.info(f'Show chats.')
+    update.message.reply_text('Иногда, чтобы начать всё сначала, нужно нажать /start.',
+                              reply_markup=ReplyKeyboardRemove())
+    return MAIN_MENU
+
+
 def wait_for_email(bot, update, user_data):
+    LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
     text = update.message.text
+
     # Check email is in db
     if (not user_data['email'] is None) and (text != user_data['email']):
-        update.message.reply_text(f'Хммм. Есть информация, что ваша почта другая: {user_data["email"]}'
+        LOGGER.info(f'Another email exist.')
+        update.message.reply_text(f'Хммм. Есть информация, что ваша почта другая: {user_data["email"]}.\n'
                                   f'Скорее всего, это связано с тем, что вы вводили её ранее.'
                                   f'Если вы опечатались или возникла другая ошибка - напишите @lego1as',
-                                  reply_markup=make_kb([['Показать чаты', 'Показать сервисы']]))
-        return MAIN_MENU
+                                  reply_markup=make_kb([['Добавиться в чат'],
+                                                        ['Показать чаты', 'Показать сервисы']]))
+        stage = MAIN_MENU
     else:
-        # TODO: log INFO new email added for _id_
-
+        LOGGER.info(f'Record email.')
         if re.match(r'^(\w|\.)+@phystech\.edu$', text):
             code = gen_random_string(N_CODE)
             user_data['email'] = text
+            print(code, user_data['email'])
             concat_string = code + user_data['first_name'] + user_data['last_name']
             user_data['user_hash'] = hash(concat_string)
-            message_text = f'Your invitation code is {code}.'
-            send_email(SERVER, user_data['email'], message_text)
+
+            # # TODO: Remove debug block
+            # if text == 'akostin@phystech.edu':
+            #     update.message.reply_text(
+            #         f'Твой код: **{code}**',
+            #         parse_mode=ParseMode.MARKDOWN,
+            #         reply_markup=ReplyKeyboardRemove(),
+            #     )
+            # # TODO: Remove debug block
+            # else:
+            #     message_text = f'Ваш пригласительный код: {code}.'
+            #     send_email(user_data['email'], message_text)
+            # # TODO: Remove debug block
+
+            message_text = f'Ваш пригласительный код: {code}.'
+            send_email(user_data['email'], message_text)
+
             # TODO: Solve markdown problem
             update.message.reply_text(
                 f'Мы отправили письмо на почту **{user_data["email"]}**.\n'
@@ -159,86 +216,112 @@ def wait_for_email(bot, update, user_data):
                 parse_mode=ParseMode.MARKDOWN,
                 reply_markup=ReplyKeyboardRemove(),
             )
-            return WAIT_FOR_EMAIL
+            stage = WAIT_FOR_EMAIL
         else:
+            LOGGER.warning(f'Email does not fit pattern.')
             update.message.reply_text(
                 'Где-то ошибка, введите ещё раз, пожалуйста.',
                 reply_markup=ReplyKeyboardRemove(),
             )
-            return ADD_TO_CHAT
+            stage = ADD_TO_CHAT
+    return stage
 
 
 def wait_for_code(bot, update, user_data):
+    LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
 
     if user_data['attempt'] is None:
         user_data['attempt'] = 0
 
     user_data['attempt'] = user_data['attempt'] + 1
-    if not user_data['attempt'] % 3:
-        update.message.reply_text('Вы 3 раза ввели неверный код.\n'
-                                  'Пройдите процедуру заново(/start) или обратитесь к модератору @lego1as.')
-        return MAIN_MENU
+    LOGGER.info(f'Code reception. Attempt[{user_data["attempt"]}]')
 
-    hash_standard = user_data['user_hash']
-    code = update.message.text
-    concat_string = code + user_data['first_name'] + user_data['last_name']
-    hash_current = hash(concat_string)
-    if hash_current == hash_standard:
-        user_data['status'] = "approved"
-        update.message.reply_text('Проверка прошла успешно!\n'
-                                  f'Пожалуйста, ознакомьтесь с правилами группы: \n'
-                                  f'\n{RULES}.\n'
-                                  'Напишите "Да", если вы согласны с правилами группы',
-                                  reply_markup=ReplyKeyboardRemove())
-        return WAIT_FOR_CODE
+    if not user_data['attempt'] % 3:
+        LOGGER.warning(f'Wrong code 3 in times in a row. Attempt[{user_data["attempt"]}]')
+        update.message.reply_text('Вы 3 раза ввели неверный код.\n'
+                                  'Пройдите процедуру заново(/start) или обратитесь к модератору @lego1as.',
+                                  reply_markup=make_kb([['Добавиться в чат'],
+                                                        ['Показать чаты', 'Показать сервисы']]),
+                                  )
+        stage = MAIN_MENU
     else:
-        attempts_left = 3 - user_data["attempt"] % 3
-        update.message.reply_text('Неверный код. Введите ещё раз.\n'
-                                  f'Осталось попыток: {attempts_left}',
-                                  reply_markup=ReplyKeyboardRemove())
-        return WAIT_FOR_EMAIL
+        hash_standard = user_data['user_hash']
+        code = update.message.text
+        concat_string = code + user_data['first_name'] + user_data['last_name']
+        hash_current = hash(concat_string)
+        if hash_current == hash_standard:
+            LOGGER.info(f'Successfully approved. Attempt[{user_data["attempt"]}]')
+            user_data['status'] = "approved"
+            update.message.reply_text('Проверка прошла успешно!\n'
+                                      f'Пожалуйста, ознакомьтесь с правилами группы: \n'
+                                      f'\n{RULES}.\n'
+                                      'Напишите "Да", если вы согласны с правилами группы',
+                                      reply_markup=ReplyKeyboardRemove())
+            stage = WAIT_FOR_CODE
+        else:
+            LOGGER.warning(f'Wrong code. Attempt[{user_data["attempt"]}]')
+            attempts_left = 3 - user_data["attempt"] % 3
+            update.message.reply_text('Неверный код. Введите ещё раз.\n'
+                                      f'Осталось попыток: {attempts_left}',
+                                      reply_markup=ReplyKeyboardRemove())
+            stage = WAIT_FOR_EMAIL
+    return stage
 
 
 def send_invitation(bot, update, user_data):
+    LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
 
     if update.message.text == "Да":
+        LOGGER.info(f'Agree with rules.')
         invite_link = bot.exportChatInviteLink(CHANNEL_ID)
         user_data['invite_link'] = invite_link
         # TODO: Solve markdown problem
-        update.message.reply_text('Добро пожаловать в канал Физтех.Важное:\n'
+        update.message.reply_text('Добро пожаловать в канал Физтех.Важное: \n'
                                   f'{invite_link}\n'
-                                  'Внизу с правой стороны будет кнопка для перехода в чат **Phystech. No Flood**\n',
-                                  reply_markup=make_kb([['Спасибо']]),
+                                  'Внизу с правой стороны будет кнопка для перехода в чат **Phystech. No Flood**\n'
+                                  'Пожалуйста, нажмите кнопку, как добавитесь в чат.',
+                                  reply_markup=make_kb([['Спасибочки']]),
                                   parse_mode=ParseMode.MARKDOWN)
+        LOGGER.info(f'Link sent.')
 
+        # Send log to public channel
+        bot.sendMessage(chat_id=LOGS_CHANNEL_ID,
+                        text=INVITE_LINK_MSG.format(
+                            first_name=user_data['first_name'],
+                            last_name=user_data['last_name'],
+                            username=user_data['username'],
+                            uid=user_data['id']))
+
+        # Record profile
         profile_db = ProfileDB('data/main.sqlite')
         if None in user_data.values():
+            LOGGER.error(f'None is in user_data!')
             bot.sendMessage(chat_id=ADMIN_ID,
                             text=f'Какая-то проблема с user_data: {user_data}')
-
         profile_db.update_profile(user_data)
 
-        return SEND_INVITATION
+        stage = SEND_INVITATION
     else:
+        LOGGER.warning(f'Misagree with rules.')
         update.message.reply_text('Осталось только согласиться с правилами. Ну же.')
-        return WAIT_FOR_CODE
+        stage = WAIT_FOR_CODE
+    return stage
 
 
-def done(bot, update, user_data):
-    bot.sendMessage(chat_id=LOGS_CHANNEL_ID,
-                    text=INVITE_LINK_MSG.format(
-                        username=user_data['username'],
-                        uid=user_data['id']))
-    # TODO: check user is in chat
-    bot.sendMessage(chat_id=ADMIN_ID,
-                    text='New user. Revoke link please.')
-
+def done(bot, update):
     return ConversationHandler.END
 
 
 def help_menu(bot, update):
-    update.message.reply_text("Suk, nu privet!")
+    LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
+    LOGGER.info(f'Use help menu.')
+    update.message.reply_text("По всем возникшим вопросам и предложениям писать @lego1as",
+                              reply_markup=make_kb([['Добавиться в чат'],
+                                                    ['Показать чаты', 'Показать сервисы']]))
+    return MAIN_MENU
 
 
 def error(bot, update, error):
-    logger.warning(f'Update "{update}" caused error "{error}"')
+    LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
+    LOGGER.error(f'Update "{update}" caused error "{error}"')
+    # logger.warning(f'Update "{update}" caused error "{error}"')

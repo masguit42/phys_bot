@@ -43,10 +43,10 @@ RULES = '''🚩 Если собираетесь вывесить объявле�
 🚩 Чтобы добавить кого-нибудь в чат, пишите @lego1as, @caffeinum, @ivanychev
 '''
 
-(MAIN_MENU, SHOW_CHATS, SHOW_SERVICES,
- ADD_TO_CHAT, SENT_EMAIL,
+(MAIN_MENU,
+ ADD_TO_CHAT,
  WAIT_FOR_EMAIL, WAIT_FOR_CODE,
- WRONG_CODE, SEND_INVITATION, *_) = range(100)
+ SEND_INVITATION, *_) = range(100)
 
 ADMIN_ID = 143871296 # lego1as
 LOGS_CHANNEL_ID = -1001391309276  # No Flood. Logs
@@ -55,13 +55,14 @@ CHANNEL_ID = -1001110086957  # Phystech.Важное
 MAIN_CHAT_ID = -1001378790209 # TEST SUPER GROUP 1
 
 N_CODE = 6
+N_MINUTES_PER_INVITE = 2
 
 INVITE_LINK_MSG = """
 #NEW_INVITATION\n
 • Channel: Phystech.Важное [#chat1001092483713]\n
-• User: v23 [@{username}] [#id{uid}]
+• User: {first_name} {last_name} [@{username}] [#id{uid}]
 """
-# TODO: Check compatibility with relative paths.
-SMTP_SINGIN = '/home/masguit42/bot/data/singin.txt'
+
+SMTP_SINGIN = 'data/singin.txt'
 BOT_TOKEN = 'data/token.txt'
 LOG_FILE = 'data/logs.txt'

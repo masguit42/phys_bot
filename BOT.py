@@ -35,9 +35,9 @@ def main():
                 RegexHandler('^(Добавиться в чат)$', add_to_chat, pass_user_data=True),
                 RegexHandler('^(Показать чаты)$', show_chats),
                 RegexHandler('^(Показать сервисы)$', show_services),
-                CommandHandler('start', main_menu),
+                CommandHandler('start', main_menu,  pass_user_data=True),
                 CommandHandler('help', help_menu),
-                MessageHandler(Filters.text, reply_start,  pass_user_data=True),
+                MessageHandler(Filters.text, reply_start),
             ],
             ADD_TO_CHAT: [
                 MessageHandler(Filters.text, wait_for_email, pass_user_data=True),

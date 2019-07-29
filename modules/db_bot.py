@@ -142,10 +142,6 @@ class ProfileDB(DB):
         users = query.filter(Profile.status == status).all()
         return users
 
-    def get_by_status(self, status):
-        query = self.session.query(Profile)
-        return query.filter(Profile.status == status).all()
-
     def get_by_username(self, username):
         query = self.session.query(Profile)
         users = query.filter(Profile.username == username).all()

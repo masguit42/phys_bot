@@ -21,6 +21,8 @@ PHP: @phpmipt
 Испанский: @spanishmipt
 Немецкий: @deutschmipt\n
 Путешествия: @phystechtravel
+Аренда жилья: @hv_rent
+Карьера: @phystechcareer
 Купоны на пиццу: @phystechpizza
 Чат Зюзино: @ZZchatter
 \n
@@ -54,6 +56,8 @@ CHANNEL_ID = -1001110086957  # Phystech.Важное
 # MAIN_CHAT_ID = 1001092483713  # Phystech. No Flood
 MAIN_CHAT_ID = -1001378790209 # TEST SUPER GROUP 1
 
+
+
 N_CODE = 6
 N_MINUTES_PER_INVITE = 2
 
@@ -62,6 +66,9 @@ INVITE_LINK_MSG = """
 • Channel: Phystech.Важное [#chat1001092483713]\n
 • User: {first_name} {last_name} [@{username}] [#id{uid}]
 """
+
+SMTP_SERVER = "smtp.gmail.com"
+SMTP_PORT = 587
 
 SMTP_SINGIN = 'data/singin.txt'
 BOT_TOKEN = 'data/token.txt'

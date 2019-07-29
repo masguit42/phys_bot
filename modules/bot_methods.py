@@ -36,6 +36,7 @@ LOGGER = logging.getLogger('root')
 
 
 def main_menu(bot, update, user_data):
+    LOGGER = logging.getLogger('root')
     # Check chat is private
     if update.message.chat.type != 'private':
         print(update.message.from_user.id)
@@ -57,11 +58,9 @@ def main_menu(bot, update, user_data):
     # Fill user_data if profile exists
     if not existed_profile is None:
         LOGGER.info(f'User exists in db.')
-        # TODO: log INFO Profile _id_ in db already
         for key, value in existed_profile.to_dict().items():
             user_data[key] = value
     else:
-        # TODO: log INFO Profile _id_ not in db yet
         LOGGER.info(f'User not exist in db.')
         pass
 
@@ -69,10 +68,10 @@ def main_menu(bot, update, user_data):
         user_data[key] = (update.message.from_user[key]
                           if user_data[key] is None else user_data[key])
 
-    in_chat = check_user_in_chat(bot, update)
+    in_chat = check_user_in_chat(bot, update, LOGGER)
     if update.message.text == 'Спасибочки':
 
-        in_chat = check_n_wait_for_user_in_chat(bot, update, in_chat)
+        in_chat = check_n_wait_for_user_in_chat(bot, update, in_chat, LOGGER)
 
         if in_chat:
             bot.sendMessage(chat_id=ADMIN_ID,
@@ -90,17 +89,6 @@ def main_menu(bot, update, user_data):
                                       ['Показать чаты', 'Показать сервисы']])
             )
             LOGGER.warning(f'Unhandled behaviour in modules.bot_methods.main_menu.')
-
-    # TODO: Remove debug command
-    elif False:
-    # elif in_chat or user_data['status'] == 'approved':
-        LOGGER.info(f'User already in chat or approved.')
-        update.message.reply_text(
-            'Вы уже были добавлены в чат. \n'
-            'В случае возникновения проблем, '
-            'обратитесь к модератору @lego1as.',
-            reply_markup=make_kb([['Показать чаты', 'Показать сервисы']])
-        )
     else:
         LOGGER.info(f'User not in chat or approved yet.')
         update.message.reply_text(
@@ -116,13 +104,11 @@ def main_menu(bot, update, user_data):
 
 def add_to_chat(bot, update, user_data):
     LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
-    in_chat = check_user_in_chat(bot, update)
+    in_chat = check_user_in_chat(bot, update, LOGGER)
 
-    # TODO: Remove duplicate of code
     # TODO: Remove debug command
     if False:
     # if in_chat or user_data['status'] == 'approved':
-        LOGGER = logging.getLogger(f'user#{user_data["id"]}')
         LOGGER.info(f'User already in chat or approved.')
         update.message.reply_text(
             'Вы уже были добавлены в чат. \n'
@@ -133,7 +119,7 @@ def add_to_chat(bot, update, user_data):
         stage = MAIN_MENU
     else:
         update.message.reply_text(
-            'Чтобы добавить вас в чат, необходимо удостовериться, что вы с МФТИ. '
+            'Чтобы добавить вас в чат, необходимо удостовериться, что вы из МФТИ. '
             'Напишите свою почту на домене **phystech.edu** '
             'и мы вышлем на неё секретный код. '
             'После этого, напишите сюда код с электронной почты '
@@ -166,7 +152,7 @@ def show_services(bot, update):
 def reply_start(bot, update):
     LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
     LOGGER.info(f'Show chats.')
-    update.message.reply_text('Иногда, чтобы начать всё сначала, нужно нажать /start.',
+    update.message.reply_text('Иногда, чтобы начать всё сначала, достаточно нажать /start.',
                               reply_markup=ReplyKeyboardRemove())
     return MAIN_MENU
 
@@ -193,21 +179,12 @@ def wait_for_email(bot, update, user_data):
             concat_string = code + user_data['first_name'] + user_data['last_name']
             user_data['user_hash'] = hash(concat_string)
 
-            # # TODO: Remove debug block
-            # if text == 'akostin@phystech.edu':
-            #     update.message.reply_text(
-            #         f'Твой код: **{code}**',
-            #         parse_mode=ParseMode.MARKDOWN,
-            #         reply_markup=ReplyKeyboardRemove(),
-            #     )
-            # # TODO: Remove debug block
-            # else:
-            #     message_text = f'Ваш пригласительный код: {code}.'
-            #     send_email(user_data['email'], message_text)
-            # # TODO: Remove debug block
-
             message_text = f'Ваш пригласительный код: {code}.'
-            send_email(user_data['email'], message_text)
+            sent = send_email(user_data['email'], message_text, LOGGER)
+            if sent:
+                LOGGER.info(f'Successful send message to {user_data["email"]}.')
+            else:
+                LOGGER.error(f'Cannot send message to {user_data["email"]}.')
 
             # TODO: Solve markdown problem
             update.message.reply_text(
@@ -322,6 +299,8 @@ def help_menu(bot, update):
 
 
 def error(bot, update, error):
-    LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
+    if not update is None:
+        LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
+    else:
+        LOGGER = logging.getLogger('root')
     LOGGER.error(f'Update "{update}" caused error "{error}"')
-    # logger.warning(f'Update "{update}" caused error "{error}"')

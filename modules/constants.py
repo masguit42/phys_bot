@@ -9,32 +9,11 @@ USER_DATA_KEYS = (
     'invite_link',
     'username')
 
-ALLOWED_STATUSES = ("banned", "approved", "not_approved")
+ALLOWED_STATUSES = ("approved", "not_approved",
+                    "administrator", "creator", "kicked",
+                    "left", "member", "restricted")
 
-CHATS = """
-Python: @pythonmipt
-C++: @ccmipt
-Java: @javamipt
-PHP: @phpmipt
-Фронтенд: @phystech_frontend\n
-Английский: @englishmipt
-Испанский: @spanishmipt
-Немецкий: @deutschmipt\n
-Путешествия: @phystechtravel
-Аренда жилья: @hv_rent
-Карьера: @phystechcareer
-Купоны на пиццу: @phystechpizza
-Чат Зюзино: @ZZchatter
-\n
-CryptoMIPT: писать @karfly\n
-Phystech. No Flood: нажмите /start
-"""
-
-SERVICES = """
-Бонусные карты: @phystechcard\n
-Знакомства: @qualidate_bot\n
-Все мемы в одном месте: @ffmemesbot
-"""
+RESTRICTED = 'restricted'
 
 RULES = '''🚩 Если собираетесь вывесить объявление о работе, поставьте тэг #_job и вилку
 🚩 Запрещено вывешивать объявления до подтверждения статуса Физтех
@@ -53,10 +32,7 @@ RULES = '''🚩 Если собираетесь вывесить объявле�
 ADMIN_ID = 143871296 # lego1as
 LOGS_CHANNEL_ID = -1001391309276  # No Flood. Logs
 CHANNEL_ID = -1001110086957  # Phystech.Важное
-# MAIN_CHAT_ID = 1001092483713  # Phystech. No Flood
-MAIN_CHAT_ID = -1001378790209 # TEST SUPER GROUP 1
-
-
+MAIN_CHAT_ID = -1001092483713  # Phystech. No Flood
 
 N_CODE = 6
 N_MINUTES_PER_INVITE = 2
@@ -70,6 +46,10 @@ INVITE_LINK_MSG = """
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 
+CHATS = 'content/chats.txt'
+SERVICES = 'content/services.txt'
+
 SMTP_SINGIN = 'data/singin.txt'
 BOT_TOKEN = 'data/token.txt'
 LOG_FILE = 'data/logs.txt'
+

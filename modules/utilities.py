@@ -97,17 +97,18 @@ def send_email(receiver_email, message_text, logger):
 
 
 def check_user_in_chat(bot, update, logger):
-    in_chat = False
+    in_chat = True
     try:
-        bot.get_chat_member(chat_id=MAIN_CHAT_ID,
-                            user_id=update.message.from_user.id,
-                            timeout=5)
+        chat_member = bot.get_chat_member(
+            chat_id=MAIN_CHAT_ID,
+            user_id=update.message.from_user.id,
+            timeout=5)
+        if chat_member['status'] == 'left':
+            in_chat = False
     except TelegramError:
-        pass
+        in_chat = False
     except Exception as problem:
         logger.error(f'Exception in check_in_chat {problem}')
-    else:
-        in_chat = True
 
     return in_chat
 

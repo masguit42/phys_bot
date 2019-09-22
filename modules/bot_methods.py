@@ -3,30 +3,29 @@
 """
 import logging
 import re
-from time import sleep
 
 from telegram import (
     ReplyKeyboardRemove,
-    ParseMode, Chat, TelegramError)
+    ParseMode)  # Chat, TelegramError)
 from telegram.ext import ConversationHandler
 
 from .constants import (
     MAIN_MENU, ADD_TO_CHAT,
     WAIT_FOR_EMAIL, WAIT_FOR_CODE,
     SEND_INVITATION,
-    ADMIN_ID, LOGS_CHANNEL_ID, MAIN_CHAT_ID,
+    ADMIN_ID, LOGS_CHANNEL_ID,  # MAIN_CHAT_ID,
     CHANNEL_ID, CHATS, SERVICES, RULES,
     INVITE_LINK_MSG,
-    N_CODE, N_MINUTES_PER_INVITE,
-    SMTP_SINGIN, LOG_FILE)
+    N_CODE,  # N_MINUTES_PER_INVITE,
+    # SMTP_SINGIN,
+    LOG_FILE)
 from .utilities import (
     send_email, check_user_in_chat,
     make_kb, gen_random_string,
-    get_smtp_server, init_user_data,
+    # get_smtp_server,
+    init_user_data,
     check_n_wait_for_user_in_chat)
 from .db_bot import ProfileDB
-
-# SERVER = get_smtp_server(SMTP_SINGIN)
 
 # Enable logging
 logging.basicConfig(filename=LOG_FILE, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -39,7 +38,7 @@ def main_menu(bot, update, user_data):
     LOGGER = logging.getLogger('root')
     # Check chat is private
     if update.message.chat.type != 'private':
-        print(update.message.from_user.id)
+        print(f'User: {update.message.from_user.id}, Chat: {update.message.chat.id}')
         update.message.reply_text(
             'Этот бот не может работать в этом чяте.',
             reply_markup=ReplyKeyboardRemove())
@@ -90,7 +89,6 @@ def main_menu(bot, update, user_data):
             )
             LOGGER.warning(f'Unhandled behaviour in modules.bot_methods.main_menu.')
     else:
-        LOGGER.info(f'User not in chat or approved yet.')
         update.message.reply_text(
             f'Привет, {user_data["first_name"]}. '
             f'Этот бот поможет вам добавиться в общий чат физтехов, '
@@ -106,9 +104,7 @@ def add_to_chat(bot, update, user_data):
     LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
     in_chat = check_user_in_chat(bot, update, LOGGER)
 
-    # TODO: Remove debug command
-    if False:
-    # if in_chat or user_data['status'] == 'approved':
+    if in_chat or user_data['status'] == 'approved':
         LOGGER.info(f'User already in chat or approved.')
         update.message.reply_text(
             'Вы уже были добавлены в чат. \n'
@@ -125,27 +121,28 @@ def add_to_chat(bot, update, user_data):
             'После этого, напишите сюда код с электронной почты '
             'и вам дадут ссылку на добавление в чат.',
             reply_markup=ReplyKeyboardRemove(),
-            parse_mode=ParseMode.MARKDOWN,
+            parse_mode=ParseMode.MARKDOWN
         )
         stage = ADD_TO_CHAT
     return stage
 
 
 def show_chats(bot, update):
-    # TODO: Maybe delete this log
-    LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
-    LOGGER.info(f'Show chats.')
-    update.message.reply_text(CHATS,
-                              reply_markup=make_kb([['Добавиться в чат', 'Показать сервисы']]))
+    with open(CHATS) as f:
+        chats = f.read()
+    update.message.reply_text(chats,
+                              reply_markup=make_kb([['Добавиться в чат',
+                                                     'Показать сервисы']]))
     return MAIN_MENU
 
 
 def show_services(bot, update):
-    # TODO: Maybe delete this log
-    LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
-    LOGGER.info(f'Show services.')
-    update.message.reply_text(SERVICES,
-                              reply_markup=make_kb([['Добавиться в чат', 'Показать чаты']]))
+    with open(SERVICES) as f:
+        services = f.read()
+    update.message.reply_text(services,
+                              parse_mode=ParseMode.HTML,
+                              reply_markup=make_kb([['Добавиться в чат',
+                                                     'Показать чаты']]))
     return MAIN_MENU
 
 
@@ -176,7 +173,10 @@ def wait_for_email(bot, update, user_data):
             code = gen_random_string(N_CODE)
             user_data['email'] = text
             print(code, user_data['email'])
-            concat_string = code + user_data['first_name'] + user_data['last_name']
+
+            concat_string = (str(code)
+                             + str(user_data['first_name'])
+                             + str(user_data['last_name']))
             user_data['user_hash'] = hash(concat_string)
 
             message_text = f'Ваш пригласительный код: {code}.'
@@ -224,7 +224,9 @@ def wait_for_code(bot, update, user_data):
     else:
         hash_standard = user_data['user_hash']
         code = update.message.text
-        concat_string = code + user_data['first_name'] + user_data['last_name']
+        concat_string = (str(code)
+                         + str(user_data['first_name'])
+                         + str(user_data['last_name']))
         hash_current = hash(concat_string)
         if hash_current == hash_standard:
             LOGGER.info(f'Successfully approved. Attempt[{user_data["attempt"]}]')

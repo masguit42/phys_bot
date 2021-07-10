@@ -1,5 +1,2 @@
-python-telegram-bot
-logging
-sqlalchemy
-smtplib
-email
+python-telegram-bot==13.7
+sqlalchemy==1.4.20

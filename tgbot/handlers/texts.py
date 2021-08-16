@@ -1,7 +1,7 @@
 SERVICES = '''
-    <ADD HERE SERVICES>
+    ADD HERE SERVICES
 '''
 
 CHATS = """
-    <ADD CHATS HERE>
+    ADD CHATS HERE
 """

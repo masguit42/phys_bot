@@ -57,11 +57,12 @@ def add_to_chat(update, context):
 def show_chats(update, context):
     update.message.reply_text(
         texts.CHATS,
+        parse_mode=telegram.ParseMode.HTML,
         reply_markup=telegram.ReplyKeyboardMarkup(
             [['Добавиться в чат', 'Показать сервисы']],
             resize_keyboard=True,
             one_time_keyboard=True,
-        )
+        ),
     )
 
 
@@ -73,7 +74,7 @@ def show_services(update, context):
             [['Добавиться в чат', 'Показать чаты']],
             resize_keyboard=True,
             one_time_keyboard=True,
-        )
+        ),
     )
 
 

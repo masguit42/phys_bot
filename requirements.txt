@@ -1,5 +1,21 @@
+pytz
+requests
+python-dotenv
+
+# Django
+django
+django-timezone-field 
+django-cors-headers
+whitenoise
+
+# Django 3.0 async requirements
+daphne
+uvloop
+httptools
+
+# Databases
+psycopg2-binary
+dj-database-url
+
+# Telegram
 python-telegram-bot
-logging
-sqlalchemy
-smtplib
-email

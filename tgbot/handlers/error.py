@@ -33,7 +33,7 @@ def send_stacktrace_to_tg_chat(update, context):
         text="😔 Something broke inside the bot. It is because we are constantly improving our service but sometimes we might forget to test some basic stuff.\nPlease give us couple hours too fix it. We already received all the details.\n\nReturn to /menu",
         chat_id=u.user_id,
     )
-    error_text_to_send = f"⚠️⚠️⚠️ for {u.tg_str()}:\n{message}"[:4090]
+    error_text_to_send = f"⚠️⚠️⚠️ for {u}:\n{message}"[:4090]
     return context.bot.send_message(
         chat_id=TELEGRAM_LOGS_CHAT_ID,  # @okhlopkov
         text=error_text_to_send,

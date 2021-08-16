@@ -17,7 +17,11 @@ class User(models.Model):
 
     is_blocked_bot = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
+
     code = models.PositiveSmallIntegerField(**nb)
+    status = models.CharField(max_length=32, **nb)
+    email = models.CharField(max_length=32, **nb)
+    is_in_chat = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

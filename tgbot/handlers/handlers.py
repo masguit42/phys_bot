@@ -31,6 +31,9 @@ def main_menu(update, context):
 def add_to_chat(update, context):
     user = User.get_user(update, context)
 
+    # user.is_in_chat = True
+    # user.save()
+
     if user.is_in_chat or user.status == "approved":
         update.message.reply_text(
             'Вы уже были добавлены в чат. \n'

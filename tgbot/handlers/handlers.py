@@ -89,7 +89,7 @@ def reply_start(update, context):
     # return MAIN_MENU
 
 
-def wait_for_email(bot, update, user_data):
+def wait_for_email(update, context):
     LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
     text = update.message.text
 
@@ -139,7 +139,7 @@ def wait_for_email(bot, update, user_data):
     # return stage
 
 
-def wait_for_code(bot, update, user_data):
+def wait_for_code(update, context):
     LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
 
     if user_data['attempt'] is None:
@@ -182,7 +182,7 @@ def wait_for_code(bot, update, user_data):
     # return stage
 
 
-def send_invitation(bot, update, user_data):
+def send_invitation(update, context):
     LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
 
     if update.message.text == "Да":
@@ -222,7 +222,7 @@ def send_invitation(bot, update, user_data):
     # return stage
 
 
-def help_menu(bot, update):
+def help_menu(update, context):
     LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
     LOGGER.info(f'Use help menu.')
     update.message.reply_text("По всем возникшим вопросам и предложениям писать @realkostin",
@@ -231,7 +231,7 @@ def help_menu(bot, update):
     # return MAIN_MENU
 
 
-def error(bot, update, error):
+def error(update, context):
     if not update is None:
         LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
     else:

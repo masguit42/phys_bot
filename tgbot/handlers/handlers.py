@@ -101,7 +101,7 @@ def wait_for_email(update, context):
                                   f'Если вы опечатались или возникла другая ошибка - напишите @lego1as',
                                   reply_markup=make_kb([['Добавиться в чат'],
                                                         ['Показать чаты', 'Показать сервисы']]))
-        stage = MAIN_MENU
+        #stage = MAIN_MENU
     else:
         LOGGER.info(f'Record email.')
         if re.match(r'^(\w|\.)+@phystech\.edu$', text):
@@ -128,14 +128,14 @@ def wait_for_email(update, context):
                 parse_mode=ParseMode.MARKDOWN,
                 reply_markup=ReplyKeyboardRemove(),
             )
-            stage = WAIT_FOR_EMAIL
+            #stage = WAIT_FOR_EMAIL
         else:
             LOGGER.warning(f'Email does not fit pattern.')
             update.message.reply_text(
                 'Где-то ошибка, введите ещё раз, пожалуйста.',
                 reply_markup=ReplyKeyboardRemove(),
             )
-            stage = ADD_TO_CHAT
+            #stage = ADD_TO_CHAT
     # return stage
 
 
@@ -155,7 +155,7 @@ def wait_for_code(update, context):
                                   reply_markup=make_kb([['Добавиться в чат'],
                                                         ['Показать чаты', 'Показать сервисы']]),
                                   )
-        stage = MAIN_MENU
+        #stage = MAIN_MENU
     else:
         hash_standard = user_data['user_hash']
         code = update.message.text
@@ -171,14 +171,14 @@ def wait_for_code(update, context):
                                       f'\n{RULES}.\n'
                                       'Напишите "Да", если вы согласны с правилами группы',
                                       reply_markup=ReplyKeyboardRemove())
-            stage = WAIT_FOR_CODE
+            #stage = WAIT_FOR_CODE
         else:
             LOGGER.warning(f'Wrong code. Attempt[{user_data["attempt"]}]')
             attempts_left = 3 - user_data["attempt"] % 3
             update.message.reply_text('Неверный код. Введите ещё раз.\n'
                                       f'Осталось попыток: {attempts_left}',
                                       reply_markup=ReplyKeyboardRemove())
-            stage = WAIT_FOR_EMAIL
+            #stage = WAIT_FOR_EMAIL
     # return stage
 
 
@@ -214,11 +214,11 @@ def send_invitation(update, context):
                             text=f'Какая-то проблема с user_data: {user_data}')
         profile_db.update_profile(user_data)
 
-        stage = SEND_INVITATION
+        #stage = SEND_INVITATION
     else:
         LOGGER.warning(f'Misagree with rules.')
         update.message.reply_text('Осталось только согласиться с правилами. Ну же.')
-        stage = WAIT_FOR_CODE
+        #stage = WAIT_FOR_CODE
     # return stage
 
 

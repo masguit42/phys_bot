@@ -6,6 +6,7 @@ from tgbot import utils
 
 nb = dict(null=True, blank=True)
 
+
 class User(models.Model):
     user_id = models.IntegerField(primary_key=True)
     username = models.CharField(max_length=32, **nb)
@@ -20,7 +21,6 @@ class User(models.Model):
 
     code = models.PositiveSmallIntegerField(**nb)
     status = models.CharField(max_length=32, **nb)
-    email = models.CharField(max_length=32, **nb)
     is_in_chat = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -42,7 +42,6 @@ class User(models.Model):
                     u.deep_link = payload
                     u.save()
 
-        # TODO: if deep_link == "instagram" --> show instagram offers
         return u, created
 
     @classmethod

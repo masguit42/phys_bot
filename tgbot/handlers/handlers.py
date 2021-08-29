@@ -57,6 +57,18 @@ def add_to_chat(update, context):
         )
 
 
+def show_blogs(update, context):
+    update.message.reply_text(
+        texts.BLOGS,
+        parse_mode=telegram.ParseMode.HTML,
+        reply_markup=telegram.ReplyKeyboardMarkup(
+            [['Добавиться в чат', 'Показать сервисы']],
+            resize_keyboard=True,
+            one_time_keyboard=True,
+        ),
+    )
+
+
 def show_chats(update, context):
     update.message.reply_text(
         texts.CHATS,
@@ -90,53 +102,50 @@ def reply_start(update, context):
 
 
 def wait_for_email(update, context):
+    user = User.get_user(update, context)
     LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
-    text = update.message.text
+    email_input = update.message.text.strip().lower()
 
     # Check email is in db
-    if (not user_data['email'] is None) and (text != user_data['email']):
+    if user.email is not None and email_input != user.email:
         LOGGER.info(f'Another email exist.')
-        update.message.reply_text(f'Хммм. Есть информация, что ваша почта другая: {user_data["email"]}.\n'
-                                  f'Скорее всего, это связано с тем, что вы вводили её ранее.'
-                                  f'Если вы опечатались или возникла другая ошибка - напишите @lego1as',
-                                  reply_markup=make_kb([['Добавиться в чат'],
-                                                        ['Показать чаты', 'Показать сервисы']]))
-        #stage = MAIN_MENU
+        return update.message.reply_text(
+            f'Хммм. Есть информация, что ваша почта другая: {user.email}.\n'
+            f'Скорее всего, это связано с тем, что вы вводили её ранее.'
+            f'Если вы опечатались или возникла другая ошибка - напишите @lego1as',
+            reply_markup=make_kb([
+                ['Добавиться в чат'], ['Показать чаты', 'Показать сервисы']
+            ])
+        )
+
+    LOGGER.info(f'Record email {email_input}.')
+    user.code = gen_random_string(N_CODE)
+    user.email = email_input
+    user.save()
+
+    message_text = f'Ваш пригласительный код: {code}.'
+    sent = send_email(text, message_text, LOGGER)
+    if sent:
+        LOGGER.info(f'Successful send message to {user.email}.')
     else:
-        LOGGER.info(f'Record email.')
-        if re.match(r'^(\w|\.)+@phystech\.edu$', text):
-            code = gen_random_string(N_CODE)
-            user_data['email'] = text
-            print(code, user_data['email'])
+        LOGGER.error(f'Cannot send message to {user.email}.')
 
-            concat_string = (str(code)
-                             + str(user_data['first_name'])
-                             + str(user_data['last_name']))
-            user_data['user_hash'] = hash(concat_string)
+    # TODO: Solve markdown problem
+    update.message.reply_text(
+        f'Мы отправили письмо на почту **{user.email}**.\n'
+        'Пришлите код сообщением сюда.',
+        parse_mode=ParseMode.MARKDOWN,
+        reply_markup=ReplyKeyboardRemove(),
+    )
 
-            message_text = f'Ваш пригласительный код: {code}.'
-            sent = send_email(user_data['email'], message_text, LOGGER)
-            if sent:
-                LOGGER.info(f'Successful send message to {user_data["email"]}.')
-            else:
-                LOGGER.error(f'Cannot send message to {user_data["email"]}.')
 
-            # TODO: Solve markdown problem
-            update.message.reply_text(
-                f'Мы отправили письмо на почту **{user_data["email"]}**.\n'
-                'Пришлите код сообщением сюда.',
-                parse_mode=ParseMode.MARKDOWN,
-                reply_markup=ReplyKeyboardRemove(),
-            )
-            #stage = WAIT_FOR_EMAIL
-        else:
-            LOGGER.warning(f'Email does not fit pattern.')
-            update.message.reply_text(
-                'Где-то ошибка, введите ещё раз, пожалуйста.',
-                reply_markup=ReplyKeyboardRemove(),
-            )
-            #stage = ADD_TO_CHAT
-    # return stage
+# TODO: Add to handler
+def wrong_email(update, context):
+    LOGGER.warning(f'Email does not fit pattern.')
+    update.message.reply_text(
+        'Где-то ошибка, введите ещё раз, пожалуйста.',
+        reply_markup=ReplyKeyboardRemove(),
+    )
 
 
 def wait_for_code(update, context):

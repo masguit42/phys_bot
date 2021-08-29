@@ -3,12 +3,31 @@
 """
 
 import re
+import string
+import random
 import logging
 import telegram
 
 from tgbot.models import User
 from tgbot.handlers.logs import send_text
 from tgbot.handlers import texts
+
+
+from OLD.modules.constants import (
+    USER_DATA_KEYS, MAIN_CHAT_ID,
+    SMTP_SERVER, SMTP_PORT,
+    N_MINUTES_PER_INVITE, SMTP_SINGIN, N_CODE
+)
+
+from OLD.modules.utilities import *
+
+
+def make_kb(keys, one_time_keyboard=True):
+    return telegram.ReplyKeyboardMarkup(
+        keys,
+        resize_keyboard=True,
+        one_time_keyboard=one_time_keyboard,
+    )
 
 
 def main_menu(update, context):
@@ -97,7 +116,7 @@ def reply_start(update, context):
     LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
     LOGGER.info(f'Show chats.')
     update.message.reply_text('Иногда, чтобы начать всё сначала, достаточно нажать /start.',
-                              reply_markup=ReplyKeyboardRemove())
+                              reply_markup=telegram.ReplyKeyboardRemove())
     # return MAIN_MENU
 
 
@@ -123,8 +142,8 @@ def wait_for_email(update, context):
     user.email = email_input
     user.save()
 
-    message_text = f'Ваш пригласительный код: {code}.'
-    sent = send_email(text, message_text, LOGGER)
+    message_text = f'Ваш пригласительный код: {user.code}.'
+    sent = send_email(email_input, message_text, LOGGER)
     if sent:
         LOGGER.info(f'Successful send message to {user.email}.')
     else:
@@ -141,10 +160,9 @@ def wait_for_email(update, context):
 
 # TODO: Add to handler
 def wrong_email(update, context):
-    LOGGER.warning(f'Email does not fit pattern.')
     update.message.reply_text(
         'Где-то ошибка, введите ещё раз, пожалуйста.',
-        reply_markup=ReplyKeyboardRemove(),
+        reply_markup=telegram.ReplyKeyboardRemove(),
     )
 
 
@@ -179,7 +197,7 @@ def wait_for_code(update, context):
                                       f'Пожалуйста, ознакомьтесь с правилами группы: \n'
                                       f'\n{RULES}.\n'
                                       'Напишите "Да", если вы согласны с правилами группы',
-                                      reply_markup=ReplyKeyboardRemove())
+                                      reply_markup=telegram.ReplyKeyboardRemove())
             #stage = WAIT_FOR_CODE
         else:
             LOGGER.warning(f'Wrong code. Attempt[{user_data["attempt"]}]')

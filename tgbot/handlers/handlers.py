@@ -30,6 +30,10 @@ def make_kb(keys, one_time_keyboard=True):
     )
 
 
+def gen_random_string(n):
+    return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(n))
+
+
 def main_menu(update, context):
     user = User.get_user(update, context)
     send_text(f"New user: {user}")
@@ -46,6 +50,7 @@ def main_menu(update, context):
             one_time_keyboard=True
         )
     )
+
 
 def add_to_chat(update, context):
     user = User.get_user(update, context)
@@ -167,55 +172,32 @@ def wrong_email(update, context):
 
 
 def wait_for_code(update, context):
+    user = User.get_user(update, context)
     LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
+    LOGGER.info(f'Code reception.')
 
-    if user_data['attempt'] is None:
-        user_data['attempt'] = 0
-
-    user_data['attempt'] = user_data['attempt'] + 1
-    LOGGER.info(f'Code reception. Attempt[{user_data["attempt"]}]')
-
-    if not user_data['attempt'] % 3:
-        LOGGER.warning(f'Wrong code 3 in times in a row. Attempt[{user_data["attempt"]}]')
-        update.message.reply_text('Вы 3 раза ввели неверный код.\n'
-                                  'Пройдите процедуру заново(/start) или обратитесь к модератору @realkostin.',
-                                  reply_markup=make_kb([['Добавиться в чат'],
-                                                        ['Показать чаты', 'Показать сервисы']]),
-                                  )
-        #stage = MAIN_MENU
+    code = update.message.text
+    if code == user.code:
+        user.status = "approved"
+        update.message.reply_text('Проверка прошла успешно!\n'
+                                  f'Пожалуйста, ознакомьтесь с правилами группы: \n'
+                                  f'\n{RULES}.\n'
+                                  'Напишите "Да", если вы согласны с правилами группы',
+                                  reply_markup=telegram.ReplyKeyboardRemove())
     else:
-        hash_standard = user_data['user_hash']
-        code = update.message.text
-        concat_string = (str(code)
-                         + str(user_data['first_name'])
-                         + str(user_data['last_name']))
-        hash_current = hash(concat_string)
-        if hash_current == hash_standard:
-            LOGGER.info(f'Successfully approved. Attempt[{user_data["attempt"]}]')
-            user_data['status'] = "approved"
-            update.message.reply_text('Проверка прошла успешно!\n'
-                                      f'Пожалуйста, ознакомьтесь с правилами группы: \n'
-                                      f'\n{RULES}.\n'
-                                      'Напишите "Да", если вы согласны с правилами группы',
-                                      reply_markup=telegram.ReplyKeyboardRemove())
-            #stage = WAIT_FOR_CODE
-        else:
-            LOGGER.warning(f'Wrong code. Attempt[{user_data["attempt"]}]')
-            attempts_left = 3 - user_data["attempt"] % 3
-            update.message.reply_text('Неверный код. Введите ещё раз.\n'
-                                      f'Осталось попыток: {attempts_left}',
-                                      reply_markup=ReplyKeyboardRemove())
-            #stage = WAIT_FOR_EMAIL
-    # return stage
+        update.message.reply_text('Неверный код. Введите ещё раз.\n'
+                                  f'Осталось попыток: {attempts_left}',
+                                  reply_markup=ReplyKeyboardRemove())
 
 
 def send_invitation(update, context):
+    user = User.get_user(update, context)
     LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
 
     if update.message.text == "Да":
         LOGGER.info(f'Agree with rules.')
         invite_link = bot.exportChatInviteLink(CHANNEL_ID)
-        user_data['invite_link'] = invite_link
+        user.invite_link = invite_link
         # TODO: Solve markdown problem
         update.message.reply_text('Добро пожаловать в канал Физтех.Важное: \n'
                                   f'{invite_link}\n'
@@ -228,25 +210,15 @@ def send_invitation(update, context):
         # Send log to public channel
         bot.sendMessage(chat_id=LOGS_CHANNEL_ID,
                         text=INVITE_LINK_MSG.format(
-                            first_name=user_data['first_name'],
-                            last_name=user_data['last_name'],
-                            username=user_data['username'],
-                            uid=user_data['id']))
+                            first_name=user.first_name,
+                            last_name=user.last_name,
+                            username=user.username,
+                            uid=user.id))
 
-        # Record profile
-        profile_db = ProfileDB('data/main.sqlite')
-        if None in user_data.values():
-            LOGGER.error(f'None is in user_data!')
-            bot.sendMessage(chat_id=ADMIN_ID,
-                            text=f'Какая-то проблема с user_data: {user_data}')
-        profile_db.update_profile(user_data)
-
-        #stage = SEND_INVITATION
+        # TODO: Record profile
     else:
         LOGGER.warning(f'Misagree with rules.')
         update.message.reply_text('Осталось только согласиться с правилами. Ну же.')
-        #stage = WAIT_FOR_CODE
-    # return stage
 
 
 def help_menu(update, context):
@@ -255,7 +227,6 @@ def help_menu(update, context):
     update.message.reply_text("По всем возникшим вопросам и предложениям писать @realkostin",
                               reply_markup=make_kb([['Добавиться в чат'],
                                                     ['Показать чаты', 'Показать сервисы']]))
-    # return MAIN_MENU
 
 
 def error(update, context):
@@ -263,4 +234,4 @@ def error(update, context):
         LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
     else:
         LOGGER = logging.getLogger('root')
-#     LOGGER.error(f'Update "{update}" caused error "{error}"')
+    # LOGGER.error(f'Update "{update}" caused error "{error}"')

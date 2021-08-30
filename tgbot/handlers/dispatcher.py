@@ -33,6 +33,7 @@ def setup_dispatcher(dp):
 
     dp.add_handler(MessageHandler(Filters.regex('^(\w|\.)+@phystech\.edu$'), handlers.wait_for_email))
     dp.add_handler(MessageHandler(Filters.regex('^[A-Z0-9]{5}$'), handlers.wait_for_code))
+    dp.add_handler(MessageHandler(Filters.regex('^(Дa)$'), handlers.send_invitation))
     dp.add_handler(MessageHandler(Filters.text, handlers.send_invitation))
 
 

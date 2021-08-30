@@ -59,3 +59,9 @@ CHATS = """
 |Ф|л|у|д|:| |п|и|с|а|т|ь| |@|v|2|3|2|3|2|3|
 |P|h|y|s|t|e|c|h|.| |N|o| |F|l|o|o|d|:| |н|а|ж|м|и|т|е| |/|s|t|a|r|t|
 """.replace('|', '')
+
+BLOGS = '''
+|О|т| |@|o|k|h|l|o|p|k|o|v|:| |@|da|n|o|k|h|l|o|p|k|o|v|
+|О|т| |@|r|e|a|l|k|o|s|t|i|n|:| |@|y|e|s|t|e|r|d|a|y|I|t|w|a|t|
+|О|т| |@|g|i|p|e|r|k|u|b|c|h|i|k|:| |@|g|i|p|e|r|t|r|i|p|
+'''.replace('|', '')

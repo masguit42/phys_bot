@@ -19,7 +19,7 @@ class User(models.Model):
     is_blocked_bot = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
 
-    code = models.PositiveSmallIntegerField(**nb)
+    code = models.CharField(max_length=5, **nb)
     status = models.CharField(max_length=32, **nb)
     is_in_chat = models.BooleanField(default=False)
 

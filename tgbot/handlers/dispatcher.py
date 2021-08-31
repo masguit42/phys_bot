@@ -28,9 +28,9 @@ def setup_dispatcher(dp):
     # dp.add_handler(CommandHandler("help", handlers.help_menu))
 
     dp.add_handler(CallbackQueryHandler(handlers.authorize, pattern='authorize'))
-    dp.add_handler(CallbackQueryHandler(handlers.chats, pattern='chats'))
-    dp.add_handler(CallbackQueryHandler(handlers.blogs, pattern='blogs'))
-    dp.add_handler(CallbackQueryHandler(handlers.services, pattern='services'))
+    dp.add_handler(CallbackQueryHandler(handlers.show_chats, pattern='chats'))
+    dp.add_handler(CallbackQueryHandler(handlers.show_blogs, pattern='blogs'))
+    dp.add_handler(CallbackQueryHandler(handlers.show_services, pattern='services'))
 
 
 

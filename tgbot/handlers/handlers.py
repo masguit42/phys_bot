@@ -60,73 +60,102 @@ def main_menu(update, context):
             f'Этот бот позволит вам добавиться в общий чат физтехов, '
             f'даст информацию о том, какие есть '
             f'чаты, каналы и сервисы в телеграме на Физтехе.',
-            reply_markup=InlineKeyboardMarkup.from_button(InlineKeyboardButton("Чаты", callback_data='auth')),
+            reply_markup=InlineKeyboardMarkup.from_button(
+                InlineKeyboardButton("Авторизоваться 👉👌🏻", callback_data='authorize')
+            ),
         )
 
 
-def add_to_chat(update, context):
+def authorize(update, context):
     user = User.get_user(update, context)
 
     # user.is_in_chat = True
     # user.save()
-
-    if user.is_in_chat or user.status == "approved":
-        update.message.reply_text(
-            'Вы уже были добавлены в чат. \n'
-            'В случае возникновения проблем, '
-            'обратитесь к модератору @realkostin.',
-            reply_markup=telegram.ReplyKeyboardMarkup(
-                [['Показать чаты', 'Показать сервисы']],
-                resize_keyboard=True,
-                one_time_keyboard=True,
-            )
-        )
+    if user.authorized:
+        show_interesting(update, context)
     else:
         update.message.reply_text(
-            'Чтобы добавить вас в чат, необходимо удостовериться, что вы из МФТИ. '
-            'Напишите свою почту на домене <b>phystech.edu</b> '
+            'Давай удостоверимся, что ты из МФТИ. '
+            'Напиши свою почту на домене **phystech.edu** '
             'и мы вышлем на неё секретный код. '
-            'После этого, напишите сюда код с электронной почты '
-            'и вам дадут ссылку на добавление в чат.',
-            reply_markup=telegram.ReplyKeyboardRemove(),
-            parse_mode=telegram.ParseMode.HTML
+            'Отправь сюда код с электронной почты '
+            'и ты получишь уникальный доступ к чатикам 😉',
+            # reply_markup=telegram.ReplyKeyboardRemove(),
+            parse_mode=telegram.ParseMode.MARKDOWN
         )
 
 
 def show_blogs(update, context):
-    update.message.reply_text(
-        texts.BLOGS,
-        parse_mode=telegram.ParseMode.HTML,
-        reply_markup=telegram.ReplyKeyboardMarkup(
-            [['Добавиться в чат', 'Показать сервисы']],
-            resize_keyboard=True,
-            one_time_keyboard=True,
-        ),
-    )
+    user = User.get_user(update, context)
+    if user.authorized:
+        update.message.reply_text(
+            texts.BLOGS,
+            parse_mode=telegram.ParseMode.HTML,
+            reply_markup=InlineKeyboardMarkup.from_column(
+                [
+                    InlineKeyboardButton("Чаты", callback_data='chats'),
+                    InlineKeyboardButton("Сервисы", callback_data='services'),
+                    InlineKeyboardButton("Блоги", callback_data='blogs'),
+                ]
+            )
+        )
+    else:
+        caught_unauthorized(update, context)
 
 
 def show_chats(update, context):
-    update.message.reply_text(
-        texts.CHATS,
-        parse_mode=telegram.ParseMode.HTML,
-        reply_markup=telegram.ReplyKeyboardMarkup(
-            [['Добавиться в чат', 'Показать сервисы']],
-            resize_keyboard=True,
-            one_time_keyboard=True,
-        ),
-    )
+    user = User.get_user(update, context)
+    if user.authorized:
+        update.message.reply_text(
+            texts.CHATS,
+            parse_mode=telegram.ParseMode.HTML,
+            reply_markup=InlineKeyboardMarkup.from_column(
+                [
+                    InlineKeyboardButton("Чаты", callback_data='chats'),
+                    InlineKeyboardButton("Сервисы", callback_data='services'),
+                    InlineKeyboardButton("Блоги", callback_data='blogs'),
+                ]
+            )
+        )
+    else:
+        caught_unauthorized(update, context)
 
 
 def show_services(update, context):
+    user = User.get_user(update, context)
+    if user.authorized:
+        update.message.reply_text(
+            texts.SERVICES,
+            parse_mode=telegram.ParseMode.HTML,
+            reply_markup=InlineKeyboardMarkup.from_column(
+                [
+                    InlineKeyboardButton("Чаты", callback_data='chats'),
+                    InlineKeyboardButton("Сервисы", callback_data='services'),
+                    InlineKeyboardButton("Блоги", callback_data='blogs'),
+                ]
+            )
+        )
+    else:
+        caught_unauthorized(update, context)
+
+
+def show_interesting(update, context):
+    update.message.reply_text('😀')
     update.message.reply_text(
-        texts.SERVICES,
-        parse_mode=telegram.ParseMode.HTML,
-        reply_markup=telegram.ReplyKeyboardMarkup(
-            [['Добавиться в чат', 'Показать чаты']],
-            resize_keyboard=True,
-            one_time_keyboard=True,
-        ),
+        'Посмотри, что интересного есть у физтехов',
+        reply_markup=InlineKeyboardMarkup.from_column(
+            [
+                InlineKeyboardButton("Чаты", callback_data='chats'),
+                InlineKeyboardButton("Сервисы", callback_data='services'),
+                InlineKeyboardButton("Блоги", callback_data='blogs'),
+            ]
+        )
     )
+
+
+def caught_unauthorized(update, context):
+    update.message.reply_text('🤔')
+    authorize(update, context)
 
 
 def reply_start(update, context):
@@ -145,9 +174,9 @@ def wait_for_email(update, context):
     if user.email is not None and email_input != user.email:
         LOGGER.info(f'Another email exist.')
         return update.message.reply_text(
-            f'Хммм. Есть информация, что ваша почта другая: {user.email}.\n'
-            f'Скорее всего, это связано с тем, что вы вводили её ранее.'
-            f'Если вы опечатались или возникла другая ошибка - напишите @lego1as',
+            f'Хммм. Есть информация, что у тебя другая почта: {user.email}.\n'
+            f'Скорее всего, это связано с тем, что ты вводили именно её ранее.'
+            f'Если опечатался или возникла другая ошибка - напиши @realkostin',
             reply_markup=make_kb([
                 ['Добавиться в чат'], ['Показать чаты', 'Показать сервисы']
             ])

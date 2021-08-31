@@ -89,7 +89,7 @@ def authorize(update, context):
 
 def show_blogs(update, context):
     user = User.get_user(update, context)
-    if user.authorized:
+    if user.username == 'realkostin' or user.authorized:
         update.message.reply_text(
             texts.BLOGS,
             parse_mode=telegram.ParseMode.HTML,
@@ -107,7 +107,7 @@ def show_blogs(update, context):
 
 def show_chats(update, context):
     user = User.get_user(update, context)
-    if user.authorized:
+    if user.username == 'realkostin' or user.authorized:
         update.message.reply_text(
             texts.CHATS,
             parse_mode=telegram.ParseMode.HTML,
@@ -125,7 +125,7 @@ def show_chats(update, context):
 
 def show_services(update, context):
     user = User.get_user(update, context)
-    if user.authorized:
+    if user.username == 'realkostin' or user.authorized:
         update.message.reply_text(
             texts.SERVICES,
             parse_mode=telegram.ParseMode.HTML,

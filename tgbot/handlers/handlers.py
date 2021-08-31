@@ -42,9 +42,11 @@ def gen_random_string(n):
 
 def main_menu(update, context):
     user = User.get_user(update, context)
+    chat_id = user.user_id
     if user.authorized:
-        update.message.reply_text(
-            'Хотите посмотреть, какие есть чаты/сервисы/блоги у физтехов?',
+        context.bot.send_message(
+            chat_id=chat_id,
+            text='Хотите посмотреть, какие есть чаты/сервисы/блоги у физтехов?',
             reply_markup=InlineKeyboardMarkup.from_column(
                 [
                     InlineKeyboardButton("Чаты", callback_data='chats'),
@@ -55,8 +57,9 @@ def main_menu(update, context):
         )
     else:
         send_text(f'New user: {user}')
-        update.message.reply_text(
-            f'Привет 👋 '
+        context.bot.send_message(
+            chat_id=chat_id,
+            text=f'Привет 👋 '
             f'Этот бот позволит вам добавиться в общий чат физтехов, '
             f'даст информацию о том, какие есть '
             f'чаты, каналы и сервисы в телеграме на Физтехе.',
@@ -68,6 +71,7 @@ def main_menu(update, context):
 
 def authorize(update, context):
     user = User.get_user(update, context)
+    chat_id = user.user_id
     send_text(f'authorize: {user}')
     user = User.get_user(update, context)
 
@@ -76,12 +80,13 @@ def authorize(update, context):
     if user.authorized:
         show_interesting(update, context)
     else:
-        update.message.reply_text(
-            'Давай удостоверимся, что ты из МФТИ. '
-            'Напиши свою почту на домене **phystech.edu** '
-            'и мы вышлем на неё секретный код. '
-            'Отправь сюда код с электронной почты '
-            'и ты получишь уникальный доступ к чатикам 😉',
+        context.bot.send_message(
+            chat_id=chat_id,
+            text='Давай удостоверимся, что ты из МФТИ. '
+                 'Напиши свою почту на домене **phystech.edu** '
+                 'и мы вышлем на неё секретный код. '
+                 'Отправь сюда код с электронной почты '
+                 'и ты получишь уникальный доступ к чатикам 😉',
             # reply_markup=telegram.ReplyKeyboardRemove(),
             parse_mode=telegram.ParseMode.MARKDOWN
         )
@@ -89,9 +94,11 @@ def authorize(update, context):
 
 def show_blogs(update, context):
     user = User.get_user(update, context)
+    chat_id = user.user_id
     if user.username == 'realkostin' or user.authorized:
-        update.message.reply_text(
-            texts.BLOGS,
+        context.bot.send_message(
+            chat_id=chat_id,
+            text=texts.BLOGS,
             parse_mode=telegram.ParseMode.HTML,
             reply_markup=InlineKeyboardMarkup.from_column(
                 [
@@ -107,9 +114,11 @@ def show_blogs(update, context):
 
 def show_chats(update, context):
     user = User.get_user(update, context)
+    chat_id = user.user_id
     if user.username == 'realkostin' or user.authorized:
-        update.message.reply_text(
-            texts.CHATS,
+        context.bot.send_message(
+            chat_id=chat_id,
+            text=texts.CHATS,
             parse_mode=telegram.ParseMode.HTML,
             reply_markup=InlineKeyboardMarkup.from_column(
                 [
@@ -125,9 +134,11 @@ def show_chats(update, context):
 
 def show_services(update, context):
     user = User.get_user(update, context)
+    chat_id = user.user_id
     if user.username == 'realkostin' or user.authorized:
-        update.message.reply_text(
-            texts.SERVICES,
+        context.bot.send_message(
+            chat_id=chat_id,
+            text=texts.SERVICES,
             parse_mode=telegram.ParseMode.HTML,
             reply_markup=InlineKeyboardMarkup.from_column(
                 [

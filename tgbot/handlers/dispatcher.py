@@ -27,7 +27,7 @@ def setup_dispatcher(dp):
     # dp.add_handler(CommandHandler("blogs", handlers.show_blogs))
     # dp.add_handler(CommandHandler("help", handlers.help_menu))
 
-    dp.add_handler(CallbackQueryHandler('authorize', handlers.authorize))
+    dp.add_handler(CallbackQueryHandler(handlers.authorize, pattern='authorize'))
 
 
 

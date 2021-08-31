@@ -61,8 +61,8 @@ def main_menu(update, context):
             f'даст информацию о том, какие есть '
             f'чаты, каналы и сервисы в телеграме на Физтехе.',
             reply_markup=InlineKeyboardMarkup.from_button(
-                InlineKeyboardButton("Авторизоваться 👉👌🏻", callback_data='authorize')
-            ),
+                InlineKeyboardButton('Авторизоваться 👉👌🏻', callback_data='authorize')
+            )
         )
 
 

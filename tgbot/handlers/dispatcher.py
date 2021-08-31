@@ -25,7 +25,7 @@ def setup_dispatcher(dp):
     # dp.add_handler(CommandHandler("chats", handlers.show_chats))
     # dp.add_handler(CommandHandler("services", handlers.show_services))
     # dp.add_handler(CommandHandler("blogs", handlers.show_blogs))
-    dp.add_handler(CommandHandler("help", handlers.help_menu))
+    # dp.add_handler(CommandHandler("help", handlers.help_menu))
 
     dp.add_handler(CallbackQueryHandler('authorize', handlers.authorize))
 
@@ -40,7 +40,7 @@ def setup_dispatcher(dp):
     # dp.add_handler(MessageHandler(Filters.regex('^(Дa)$'), handlers.send_invitation))
     # dp.add_handler(MessageHandler(Filters.text, handlers.send_invitation))
 
-    dp.add_error_handler(error.send_stacktrace_to_tg_chat)
+    # dp.add_error_handler(error.send_stacktrace_to_tg_chat)
 
     return dp
 

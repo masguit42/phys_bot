@@ -35,7 +35,6 @@ def make_kb_inline(keys, ):
     markup.add(button0)
 
 
-
 def gen_random_string(n):
     return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(n))
 
@@ -47,9 +46,9 @@ def main_menu(update, context):
             'Хотите посмотреть, какие есть чаты/сервисы/блоги у физтехов?',
             reply_markup=InlineKeyboardMarkup(
                 [
-                    InlineKeyboardButton("Чаты", callback_data='chats'),
-                    InlineKeyboardButton("Сервисы", callback_data='services'),
-                    InlineKeyboardButton("Блоги", callback_data='blogs'),
+                    types.InlineKeyboardButton("Чаты", callback_data='chats'),
+                    types.InlineKeyboardButton("Сервисы", callback_data='services'),
+                    types.InlineKeyboardButton("Блоги", callback_data='blogs'),
                 ]
             )
         )
@@ -61,7 +60,7 @@ def main_menu(update, context):
         #     f'Этот бот позволит вам добавиться в общий чат физтехов, '
         #     f'даст информацию о том, какие есть '
         #     f'чаты, каналы и сервисы в телеграме на Физтехе.',
-        #     reply_markup=from_button(InlineKeyboardButton("Чаты", callback_data='auth')),
+        #     reply_markup=from_button(types.InlineKeyboardButton("Чаты", callback_data='auth')),
         # )
 
 

@@ -7,6 +7,7 @@ import string
 import random
 import logging
 import telegram
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 from tgbot.models import User
 from tgbot.handlers.logs import send_text
@@ -44,24 +45,23 @@ def main_menu(update, context):
     if user.authorized:
         update.message.reply_text(
             'Хотите посмотреть, какие есть чаты/сервисы/блоги у физтехов?',
-            reply_markup=telegram.InlineKeyboardMarkup.from_column(
+            reply_markup=InlineKeyboardMarkup.from_column(
                 [
-                    telegram.InlineKeyboardButton("Чаты", callback_data='chats'),
-                    telegram.InlineKeyboardButton("Сервисы", callback_data='services'),
-                    telegram.InlineKeyboardButton("Блоги", callback_data='blogs'),
+                    InlineKeyboardButton("Чаты", callback_data='chats'),
+                    InlineKeyboardButton("Сервисы", callback_data='services'),
+                    InlineKeyboardButton("Блоги", callback_data='blogs'),
                 ]
             )
         )
     else:
-        pass
-        # send_text(f"New user: {user}")
-        # update.message.reply_text(
-        #     f'Привет 👋 '
-        #     f'Этот бот позволит вам добавиться в общий чат физтехов, '
-        #     f'даст информацию о том, какие есть '
-        #     f'чаты, каналы и сервисы в телеграме на Физтехе.',
-        #     reply_markup=from_button(types.InlineKeyboardButton("Чаты", callback_data='auth')),
-        # )
+        send_text(f"New user: {user}")
+        update.message.reply_text(
+            f'Привет 👋 '
+            f'Этот бот позволит вам добавиться в общий чат физтехов, '
+            f'даст информацию о том, какие есть '
+            f'чаты, каналы и сервисы в телеграме на Физтехе.',
+            reply_markup=InlineKeyboardMarkup.from_button(InlineKeyboardButton("Чаты", callback_data='auth')),
+        )
 
 
 def add_to_chat(update, context):

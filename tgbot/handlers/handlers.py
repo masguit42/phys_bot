@@ -29,6 +29,12 @@ def make_kb(keys, one_time_keyboard=True):
         one_time_keyboard=one_time_keyboard,
     )
 
+def make_kb_inline(keys, ):
+    markup = types.InlineKeyboardMarkup()
+    button0 = types.InlineKeyboardButton("Авторизоваться", callback_data='auth')
+    markup.add(button0)
+
+
 
 def gen_random_string(n):
     return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(n))
@@ -36,20 +42,26 @@ def gen_random_string(n):
 
 def main_menu(update, context):
     user = User.get_user(update, context)
-    send_text(f"New user: {user}")
-    update.message.reply_text(
-        f'Привет 👋 '
-        f'Этот бот поможет вам добавиться в общий чат физтехов, '
-        f'даст информацию о том, какие есть тематические '
-        f'чаты и каналы на Физтехе.',
-        reply_markup=telegram.ReplyKeyboardMarkup([
-                ['Добавиться в чат'],
-                ['Показать чаты', 'Показать сервисы'],
-            ],
-            resize_keyboard=True,
-            one_time_keyboard=True
+    if user.authorized:
+        update.message.reply_text(
+            'Хотите посмотреть, какие есть чаты/сервисы/блоги у физтехов?',
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    InlineKeyboardButton("Чаты", callback_data='chats'),
+                    InlineKeyboardButton("Сервисы", callback_data='services'),
+                    InlineKeyboardButton("Блоги", callback_data='blogs'),
+                ]
+            )
         )
-    )
+    else:
+        send_text(f"New user: {user}")
+        update.message.reply_text(
+            f'Привет 👋 '
+            f'Этот бот позволит вам добавиться в общий чат физтехов, '
+            f'даст информацию о том, какие есть '
+            f'чаты, каналы и сервисы в телеграме на Физтехе.',
+            reply_markup=from_button(InlineKeyboardButton("Чаты", callback_data='auth')),
+        )
 
 
 def add_to_chat(update, context):
@@ -122,7 +134,6 @@ def reply_start(update, context):
     LOGGER.info(f'Show chats.')
     update.message.reply_text('Иногда, чтобы начать всё сначала, достаточно нажать /start.',
                               reply_markup=telegram.ReplyKeyboardRemove())
-    # return MAIN_MENU
 
 
 def wait_for_email(update, context):

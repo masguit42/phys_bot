@@ -54,7 +54,7 @@ def main_menu(update, context):
             )
         )
     else:
-        send_text(f"New user: {user}")
+        send_text(f'New user: {user}')
         update.message.reply_text(
             f'Привет 👋 '
             f'Этот бот позволит вам добавиться в общий чат физтехов, '
@@ -67,6 +67,8 @@ def main_menu(update, context):
 
 
 def authorize(update, context):
+    user = User.get_user(update, context)
+    send_text(f'authorize: {user}')
     user = User.get_user(update, context)
 
     # user.is_in_chat = True
@@ -211,23 +213,23 @@ def wrong_email(update, context):
     )
 
 
-def wait_for_code(update, context):
-    user = User.get_user(update, context)
-    LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
-    LOGGER.info(f'Code reception.')
-
-    code = update.message.text
-    if code == user.code:
-        user.status = "approved"
-        update.message.reply_text('Проверка прошла успешно!\n'
-                                  f'Пожалуйста, ознакомьтесь с правилами группы: \n'
-                                  f'\n{RULES}.\n'
-                                  'Напишите "Да", если вы согласны с правилами группы',
-                                  reply_markup=telegram.ReplyKeyboardRemove())
-    else:
-        update.message.reply_text('Неверный код. Введите ещё раз.\n'
-                                  f'Осталось попыток: {attempts_left}',
-                                  reply_markup=ReplyKeyboardRemove())
+# def wait_for_code(update, context):
+#     user = User.get_user(update, context)
+#     LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
+#     LOGGER.info(f'Code reception.')
+#
+#     code = update.message.text
+#     if code == user.code:
+#         user.status = "approved"
+#         update.message.reply_text('Проверка прошла успешно!\n'
+#                                   f'Пожалуйста, ознакомьтесь с правилами группы: \n'
+#                                   f'\n{RULES}.\n'
+#                                   'Напишите "Да", если вы согласны с правилами группы',
+#                                   reply_markup=telegram.ReplyKeyboardRemove())
+#     else:
+#         update.message.reply_text('Неверный код. Введите ещё раз.\n'
+#                                   f'Осталось попыток: {attempts_left}',
+#                                   reply_markup=ReplyKeyboardRemove())
 
 
 def send_invitation(update, context):

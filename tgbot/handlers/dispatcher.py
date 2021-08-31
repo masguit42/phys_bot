@@ -22,9 +22,9 @@ def setup_dispatcher(dp):
 
     # Broadcast 
     dp.add_handler(CommandHandler("start", handlers.main_menu))
-    dp.add_handler(CommandHandler("chats", handlers.show_chats))
-    dp.add_handler(CommandHandler("services", handlers.show_services))
-    dp.add_handler(CommandHandler("blogs", handlers.show_blogs))
+    # dp.add_handler(CommandHandler("chats", handlers.show_chats))
+    # dp.add_handler(CommandHandler("services", handlers.show_services))
+    # dp.add_handler(CommandHandler("blogs", handlers.show_blogs))
     dp.add_handler(CommandHandler("help", handlers.help_menu))
 
     dp.add_handler(CallbackQueryHandler('authorize', handlers.authorize))

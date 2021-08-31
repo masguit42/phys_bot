@@ -30,9 +30,9 @@ def make_kb(keys, one_time_keyboard=True):
     )
 
 def make_kb_inline(keys, ):
-    markup = types.InlineKeyboardMarkup()
-    button0 = types.InlineKeyboardButton("Авторизоваться", callback_data='auth')
-    markup.add(button0)
+    markup = telegram.InlineKeyboardMarkup()
+    button0 = telegram.InlineKeyboardButton("Авторизоваться", callback_data='auth')
+    # markup.add(button0)
 
 
 def gen_random_string(n):
@@ -44,7 +44,7 @@ def main_menu(update, context):
     if user.authorized:
         update.message.reply_text(
             'Хотите посмотреть, какие есть чаты/сервисы/блоги у физтехов?',
-            reply_markup=InlineKeyboardMarkup(
+            reply_markup=telegram.InlineKeyboardMarkup.from_column(
                 [
                     types.InlineKeyboardButton("Чаты", callback_data='chats'),
                     types.InlineKeyboardButton("Сервисы", callback_data='services'),

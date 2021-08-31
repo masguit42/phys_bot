@@ -46,9 +46,9 @@ def main_menu(update, context):
             'Хотите посмотреть, какие есть чаты/сервисы/блоги у физтехов?',
             reply_markup=telegram.InlineKeyboardMarkup.from_column(
                 [
-                    types.InlineKeyboardButton("Чаты", callback_data='chats'),
-                    types.InlineKeyboardButton("Сервисы", callback_data='services'),
-                    types.InlineKeyboardButton("Блоги", callback_data='blogs'),
+                    telegram.InlineKeyboardButton("Чаты", callback_data='chats'),
+                    telegram.InlineKeyboardButton("Сервисы", callback_data='services'),
+                    telegram.InlineKeyboardButton("Блоги", callback_data='blogs'),
                 ]
             )
         )

@@ -32,12 +32,12 @@ def setup_dispatcher(dp):
     dp.add_handler(CallbackQueryHandler(handlers.show_blogs, pattern='blogs'))
     dp.add_handler(CallbackQueryHandler(handlers.show_services, pattern='services'))
 
-    dp.add_handler(MessageHandler(Filters.regex('^(\w|\.)+@phystech\.edu$'), handlers.wait_for_email))
+    dp.add_handler(MessageHandler(Filters.regex('^(\w|\.)+@phystech\.edu$'), handlers.get_email))
 
 
-    # dp.add_handler(MessageHandler(Filters.regex('^(Добавиться в чат)$'), handlers.main_menu))
-    # dp.add_handler(MessageHandler(Filters.regex('^(Показать чаты)$'), handlers.main_menu))
-    # dp.add_handler(MessageHandler(Filters.regex('^(Показать сервисы)$'), handlers.main_menu))
+    dp.add_handler(MessageHandler(Filters.regex('^(Добавиться в чат)$'), handlers.main_menu))
+    dp.add_handler(MessageHandler(Filters.regex('^(Показать чаты)$'), handlers.main_menu))
+    dp.add_handler(MessageHandler(Filters.regex('^(Показать сервисы)$'), handlers.main_menu))
 
     # dp.add_handler(MessageHandler(Filters.regex('^[A-Z0-9]{5}$'), handlers.wait_for_code))
     # dp.add_handler(MessageHandler(Filters.regex('^(Дa)$'), handlers.send_invitation))

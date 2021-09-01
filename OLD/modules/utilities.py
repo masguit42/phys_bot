@@ -69,16 +69,17 @@ def get_smtp_server(server=None):
     return server, code_response
 
 
-def send_email(receiver_email, message_text, logger):
+def send_email(receiver_email, message_text):
     for i in range(5):
         server, code_response = get_smtp_server()
         if code_response == 235:
             break
         else:
-            logger.warn(f'Cannot login to smtp server. Code: {code_response}')
+            # logger.warn(f'Cannot login to smtp server. Code: {code_response}')
             sleep(30)
     else:
-        logger.error(f'Cannot login for send message to {receiver_email}')
+        pass
+        # logger.error(f'Cannot login for send message to {receiver_email}')
 
     sent = False
 
@@ -93,7 +94,7 @@ def send_email(receiver_email, message_text, logger):
         except smtplib.SMTPServerDisconnected:
             server = get_smtp_server(server=server)
         except Exception as problem:
-            logger.error(f'Problem with update {problem}')
+            # logger.error(f'Problem with update {problem}')
         else:
             sent = True
             break

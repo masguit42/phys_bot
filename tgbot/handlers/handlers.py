@@ -232,6 +232,7 @@ def get_email(update, context):
     user = User.get_user(update, context)
     chat_id = user.user_id
     if not user.in_authorizing:
+        send_text(f'in_authorizing: {user.in_authorizing}')
         context.bot.send_message(
             chat_id=chat_id,
             text='Не могу разобрать, что-то на физтеховском. '
@@ -241,9 +242,9 @@ def get_email(update, context):
             )
         )
     else:
-        LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
+        # LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
         email_input = update.message.text.strip().lower()
-
+        send_text(f'in_authorizing: {user.in_authorizing}')
         # Check email is in db
         # if user.email is not None and email_input != user.email:
         #     LOGGER.info(f'Another email exist.')
@@ -256,8 +257,9 @@ def get_email(update, context):
         #         ])
         #     )
 
-        LOGGER.info(f'Record email {email_input}.')
+        # LOGGER.info(f'Record email {email_input}.')
         user.code = gen_random_string(N_CODE)
+        send_text(f'code: {user.code}, len: {len(user.code)}')
         user.email = email_input
         user.save()
 

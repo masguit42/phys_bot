@@ -94,6 +94,7 @@ def send_email(receiver_email, message_text):
         except smtplib.SMTPServerDisconnected:
             server = get_smtp_server(server=server)
         except Exception as problem:
+            pass
             # logger.error(f'Problem with update {problem}')
         else:
             sent = True

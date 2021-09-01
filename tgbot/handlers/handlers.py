@@ -264,11 +264,11 @@ def get_email(update, context):
         user.save()
 
         message_text = f'Ваш пригласительный код: {user.code}.'
-        sent = send_email(email_input, message_text, LOGGER)
-        if sent:
-            LOGGER.info(f'Successful send message to {user.email}.')
-        else:
-            LOGGER.error(f'Cannot send message to {user.email}.')
+        sent = send_email(email_input, message_text)
+        # if sent:
+        #     LOGGER.info(f'Successful send message to {user.email}.')
+        # else:
+        #     LOGGER.error(f'Cannot send message to {user.email}.')
 
         # TODO: Solve markdown problem
         context.bot.send_message(

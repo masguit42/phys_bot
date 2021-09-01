@@ -19,7 +19,7 @@ class User(models.Model):
     is_blocked_bot = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
 
-    code = models.CharField(max_length=5, **nb)
+    code = models.CharField(max_length=6, **nb)
     status = models.CharField(max_length=32, **nb)
     in_authorizing = models.BooleanField(default=False)
     authorized = models.BooleanField(default=False)

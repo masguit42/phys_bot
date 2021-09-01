@@ -8,6 +8,7 @@ import random
 import logging
 import telegram
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.error import BadRequest
 
 from tgbot.models import User
 from tgbot.handlers.logs import send_text
@@ -22,6 +23,10 @@ from OLD.modules.constants import (
 
 from OLD.modules.utilities import *
 
+import os
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+DEBUG = True
+
 
 def make_kb(keys, one_time_keyboard=True):
     return telegram.ReplyKeyboardMarkup(
@@ -29,6 +34,7 @@ def make_kb(keys, one_time_keyboard=True):
         resize_keyboard=True,
         one_time_keyboard=one_time_keyboard,
     )
+
 
 def make_kb_inline(keys, ):
     markup = telegram.InlineKeyboardMarkup()
@@ -38,6 +44,39 @@ def make_kb_inline(keys, ):
 
 def gen_random_string(n):
     return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(n))
+
+
+# from ohld
+def telegram_message_remove_buttons(user_id, message_id):
+    bot = telegram.Bot(TELEGRAM_TOKEN)
+    try:
+        bot.editMessageReplyMarkup(
+            chat_id=user_id,
+            message_id=message_id,
+        )
+    except BadRequest:
+        pass  # message was already deleted
+
+
+def telegram_message_delete(user_id, message_id):
+    bot = telegram.Bot(TELEGRAM_TOKEN)
+    try:
+        bot.deleteMessage(chat_id=user_id, message_id=message_id)
+    except Exception as e:  # if can't delete - at least remove buttons
+        # logger.warning(f"Can't remove message of user_id={user_id}, reason: {e}")
+        telegram_message_remove_buttons(user_id, message_id)
+
+
+def _delete_last_message(query):
+    """ Delete last message in chat """
+    if query is not None:
+        user_id = query.message.chat_id
+        message_id = query.message.message_id
+        if DEBUG:
+            telegram_message_delete(user_id, message_id)
+        else:
+            telegram_message_delete.delay(user_id, message_id)
+# from ohld
 
 
 def main_menu(update, context):
@@ -96,6 +135,7 @@ def show_blogs(update, context):
     user = User.get_user(update, context)
     chat_id = user.user_id
     if user.username == 'realkostin' or user.authorized:
+        _delete_last_message(update.callback_query)
         context.bot.send_message(
             chat_id=chat_id,
             text=texts.BLOGS,
@@ -116,6 +156,7 @@ def show_chats(update, context):
     user = User.get_user(update, context)
     chat_id = user.user_id
     if user.username == 'realkostin' or user.authorized:
+        _delete_last_message(update.callback_query)
         context.bot.send_message(
             chat_id=chat_id,
             text=texts.CHATS,
@@ -136,6 +177,7 @@ def show_services(update, context):
     user = User.get_user(update, context)
     chat_id = user.user_id
     if user.username == 'realkostin' or user.authorized:
+        _delete_last_message(update.callback_query)
         context.bot.send_message(
             chat_id=chat_id,
             text=texts.SERVICES,
@@ -153,9 +195,15 @@ def show_services(update, context):
 
 
 def show_interesting(update, context):
-    update.message.reply_text('😀')
-    update.message.reply_text(
-        'Посмотри, что интересного есть у физтехов',
+    user = User.get_user(update, context)
+    chat_id = user.user_id
+    context.bot.send_message(
+        chat_id=chat_id,
+        text='😀'
+    )
+    context.bot.send_message(
+        chat_id=chat_id,
+        text='Посмотри, что интересного есть у физтехов',
         reply_markup=InlineKeyboardMarkup.from_column(
             [
                 InlineKeyboardButton("Чаты", callback_data='chats'),
@@ -171,11 +219,11 @@ def caught_unauthorized(update, context):
     authorize(update, context)
 
 
-def reply_start(update, context):
-    LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
-    LOGGER.info(f'Show chats.')
-    update.message.reply_text('Иногда, чтобы начать всё сначала, достаточно нажать /start.',
-                              reply_markup=telegram.ReplyKeyboardRemove())
+# def reply_start(update, context):
+#     LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
+#     LOGGER.info(f'Show chats.')
+#     update.message.reply_text('Иногда, чтобы начать всё сначала, достаточно нажать /start.',
+#                               reply_markup=telegram.ReplyKeyboardRemove())
 
 
 def wait_for_email(update, context):

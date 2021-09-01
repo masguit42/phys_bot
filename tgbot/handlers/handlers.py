@@ -121,6 +121,7 @@ def authorize(update, context):
         chat_id = user.user_id
         send_text(f'authorize: {user}')
         user.in_authorizing = True
+        user.save()
         context.bot.send_message(
             chat_id=chat_id,
             text='Давай удостоверимся, что ты из МФТИ. '

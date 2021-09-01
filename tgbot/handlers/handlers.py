@@ -125,7 +125,7 @@ def authorize(update, context):
         context.bot.send_message(
             chat_id=chat_id,
             text='Давай удостоверимся, что ты из МФТИ. '
-                 'Напиши свою почту на домене <b>phystech.edu</b> '
+                 'Напиши свою почту на домене <b>phystеch.еdu</b> '
                  'и мы вышлем на неё секретный код. '
                  'Отправь сюда код с электронной почты '
                  'и ты получишь уникальный доступ к чатикам 😉',
@@ -136,7 +136,7 @@ def authorize(update, context):
 def show_blogs(update, context):
     user = User.get_user(update, context)
     chat_id = user.user_id
-    if user.username == 'realkostin' or user.authorized:
+    if user.username == 'realkostin' or user.authorized: # TODO: Remove hardcode
         _delete_last_message(update.callback_query)
         context.bot.send_message(
             chat_id=chat_id,
@@ -230,8 +230,8 @@ def caught_unauthorized(update, context):
 
 def get_email(update, context):
     user = User.get_user(update, context)
+    chat_id = user.user_id
     if not user.in_authorizing:
-        chat_id = user.user_id
         context.bot.send_message(
             chat_id=chat_id,
             text='Не могу разобрать, что-то на физтеховском. '
@@ -269,9 +269,10 @@ def get_email(update, context):
             LOGGER.error(f'Cannot send message to {user.email}.')
 
         # TODO: Solve markdown problem
-        update.message.reply_text(
-            f'Мы отправили письмо на почту <b>{user.email}<b>.\n'
-            'Пришлите код сообщением сюда.',
+        context.bot.send_message(
+            chat_id=chat_id,
+            text=f'Мы отправили письмо на почту <b>{user.email}<b>.\n'
+                 'Пришлите код сообщением сюда.',
             parse_mode=telegram.ParseMode.HTML,
         )
 

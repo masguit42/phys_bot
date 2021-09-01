@@ -8,45 +8,52 @@ from time import sleep
 
 from telegram import ReplyKeyboardMarkup, TelegramError
 
-from .constants import (
-    USER_DATA_KEYS, MAIN_CHAT_ID,
-    SMTP_SERVER, SMTP_PORT,
-    N_MINUTES_PER_INVITE, SMTP_SINGIN)
+# from .constants import (
+#     USER_DATA_KEYS, MAIN_CHAT_ID,
+#     SMTP_SERVER, SMTP_PORT,
+#     N_MINUTES_PER_INVITE, SMTP_SINGIN)
+
+SMTP_SERVER = "smtp.gmail.com"
+SMTP_PORT = 587
+import os
+EMAIL_BOT = os.getenv("EMAIL_BOT")
+PASSWORD_EMAIL_BOT = os.getenv("PASSWORD_EMAIL_BOT")
 
 
-def init_user_data(primary_user_data):
-
-    for key in USER_DATA_KEYS:
-        if key not in primary_user_data.keys():
-            primary_user_data[key] = None
-    primary_user_data['status'] = "not_approved"
-    return primary_user_data
-
-
-def encode_lp(file):
-    with open(file, 'r') as f:
-        login, pswd, *_ = f.read().split('\n')
-        login = [int(c)-10 for c in login.split(' ')]
-        pswd = [int(c)+7 for c in pswd.split(' ')]
-
-    login = bytearray(login).decode('utf-8')
-    pswd = bytearray(pswd).decode('utf-8')
-
-    return login, pswd
+# def init_user_data(primary_user_data):
+#
+#     for key in USER_DATA_KEYS:
+#         if key not in primary_user_data.keys():
+#             primary_user_data[key] = None
+#     primary_user_data['status'] = "not_approved"
+#     return primary_user_data
 
 
-def gen_random_string(n):
-    return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(n))
+# def encode_lp(file):
+#     with open(file, 'r') as f:
+#         login, pswd, *_ = f.read().split('\n')
+#         login = [int(c)-10 for c in login.split(' ')]
+#         pswd = [int(c)+7 for c in pswd.split(' ')]
+#
+#     login = bytearray(login).decode('utf-8')
+#     pswd = bytearray(pswd).decode('utf-8')
+#
+#     return login, pswd
 
 
-def make_kb(keys, one_time_keyboard=True):
-    return ReplyKeyboardMarkup(keys,
-                               resize_keyboard=True,
-                               one_time_keyboard=one_time_keyboard)
+# def gen_random_string(n):
+#     return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(n))
+
+
+# def make_kb(keys, one_time_keyboard=True):
+#     return ReplyKeyboardMarkup(keys,
+#                                resize_keyboard=True,
+#                                one_time_keyboard=one_time_keyboard)
 
 
 def get_smtp_server(server=None):
-    sender_email, password = encode_lp(SMTP_SINGIN)
+    # sender_email, password = encode_lp(SMTP_SINGIN)
+    sender_email, password = EMAIL_BOT, PASSWORD_EMAIL_BOT
 
     # context = ssl.create_default_context()
     if server is None:

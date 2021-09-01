@@ -29,7 +29,7 @@ RULES = '''🚩 Если собираетесь вывесить объявле�
  WAIT_FOR_EMAIL, WAIT_FOR_CODE,
  SEND_INVITATION, *_) = range(100)
 
-ADMIN_ID = 143871296 # lego1as
+ADMIN_ID = 143871296 # realkostin
 LOGS_CHANNEL_ID = -1001391309276  # No Flood. Logs
 CHANNEL_ID = -1001110086957  # Phystech.Важное
 MAIN_CHAT_ID = -1001092483713  # Phystech. No Flood

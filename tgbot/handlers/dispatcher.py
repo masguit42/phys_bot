@@ -20,7 +20,7 @@ def setup_dispatcher(dp):
     Adding handlers for events from Telegram
     """
 
-    # Broadcast 
+    # Broadcast
     dp.add_handler(CommandHandler("start", handlers.main_menu))
     dp.add_handler(CommandHandler("chats", handlers.show_chats))
     # dp.add_handler(CommandHandler("services", handlers.show_services))
@@ -32,14 +32,13 @@ def setup_dispatcher(dp):
     dp.add_handler(CallbackQueryHandler(handlers.show_blogs, pattern='blogs'))
     dp.add_handler(CallbackQueryHandler(handlers.show_services, pattern='services'))
 
+    dp.add_handler(MessageHandler(Filters.regex('^(\w|\.)+@phystech\.edu$'), handlers.wait_for_email))
 
 
+    # dp.add_handler(MessageHandler(Filters.regex('^(Добавиться в чат)$'), handlers.main_menu))
+    # dp.add_handler(MessageHandler(Filters.regex('^(Показать чаты)$'), handlers.main_menu))
+    # dp.add_handler(MessageHandler(Filters.regex('^(Показать сервисы)$'), handlers.main_menu))
 
-    # dp.add_handler(MessageHandler(Filters.regex('^(Добавиться в чат)$'), handlers.add_to_chat))
-    # dp.add_handler(MessageHandler(Filters.regex('^(Показать чаты)$'), handlers.show_chats))
-    # dp.add_handler(MessageHandler(Filters.regex('^(Показать сервисы)$'), handlers.show_services))
-    #
-    # dp.add_handler(MessageHandler(Filters.regex('^(\w|\.)+@phystech\.edu$'), handlers.wait_for_email))
     # dp.add_handler(MessageHandler(Filters.regex('^[A-Z0-9]{5}$'), handlers.wait_for_code))
     # dp.add_handler(MessageHandler(Filters.regex('^(Дa)$'), handlers.send_invitation))
     # dp.add_handler(MessageHandler(Filters.text, handlers.send_invitation))

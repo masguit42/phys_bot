@@ -82,6 +82,11 @@ def _delete_last_message(query):
 def main_menu(update, context):
     user = User.get_user(update, context)
     chat_id = user.user_id
+    context.bot.send_message(
+        chat_id=chat_id,
+        text='👋',
+        reply_markup=telegram.ReplyKeyboardRemove(),
+    )
     if user.authorized:
         context.bot.send_message(
             chat_id=chat_id,
@@ -98,10 +103,9 @@ def main_menu(update, context):
         send_text(f'New user: {user}')
         context.bot.send_message(
             chat_id=chat_id,
-            text=f'Привет 👋 '
-            f'Этот бот позволит вам добавиться в общий чат физтехов, '
-            f'даст информацию о том, какие есть '
-            f'чаты, каналы и сервисы в телеграме на Физтехе.',
+            text='Этот бот позволит вам добавиться в общий чат физтехов, '
+                 'даст информацию о том, какие есть '
+                 'чаты, каналы и сервисы в телеграме на Физтехе.',
             reply_markup=InlineKeyboardMarkup.from_button(
                 InlineKeyboardButton('Авторизоваться 👉👌🏻', callback_data='authorize')
             )
@@ -110,24 +114,21 @@ def main_menu(update, context):
 
 def authorize(update, context):
     user = User.get_user(update, context)
-    chat_id = user.user_id
-    send_text(f'authorize: {user}')
-    user = User.get_user(update, context)
 
-    # user.is_in_chat = True
-    # user.save()
     if user.authorized:
         show_interesting(update, context)
     else:
+        chat_id = user.user_id
+        send_text(f'authorize: {user}')
+        user.in_authorizing = True
         context.bot.send_message(
             chat_id=chat_id,
             text='Давай удостоверимся, что ты из МФТИ. '
-                 'Напиши свою почту на домене **phystech.edu** '
+                 'Напиши свою почту на домене <b>phystech.edu</b> '
                  'и мы вышлем на неё секретный код. '
                  'Отправь сюда код с электронной почты '
                  'и ты получишь уникальный доступ к чатикам 😉',
-            # reply_markup=telegram.ReplyKeyboardRemove(),
-            parse_mode=telegram.ParseMode.MARKDOWN
+            parse_mode=telegram.ParseMode.HTML
         )
 
 
@@ -226,42 +227,52 @@ def caught_unauthorized(update, context):
 #                               reply_markup=telegram.ReplyKeyboardRemove())
 
 
-def wait_for_email(update, context):
+def get_email(update, context):
     user = User.get_user(update, context)
-    LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
-    email_input = update.message.text.strip().lower()
-
-    # Check email is in db
-    if user.email is not None and email_input != user.email:
-        LOGGER.info(f'Another email exist.')
-        return update.message.reply_text(
-            f'Хммм. Есть информация, что у тебя другая почта: {user.email}.\n'
-            f'Скорее всего, это связано с тем, что ты вводили именно её ранее.'
-            f'Если опечатался или возникла другая ошибка - напиши @realkostin',
-            reply_markup=make_kb([
-                ['Добавиться в чат'], ['Показать чаты', 'Показать сервисы']
-            ])
+    if not user.in_authorizing:
+        chat_id = user.user_id
+        context.bot.send_message(
+            chat_id=chat_id,
+            text='Не могу разобрать, что-то на физтеховском. '
+                 'Попробуй начать авторизацию заново',
+            reply_markup=InlineKeyboardMarkup.from_button(
+                InlineKeyboardButton('Авторизоваться 👉👌🏻', callback_data='authorize')
+            )
         )
-
-    LOGGER.info(f'Record email {email_input}.')
-    user.code = gen_random_string(N_CODE)
-    user.email = email_input
-    user.save()
-
-    message_text = f'Ваш пригласительный код: {user.code}.'
-    sent = send_email(email_input, message_text, LOGGER)
-    if sent:
-        LOGGER.info(f'Successful send message to {user.email}.')
     else:
-        LOGGER.error(f'Cannot send message to {user.email}.')
+        LOGGER = logging.getLogger(f'user#{update.message.from_user.id}')
+        email_input = update.message.text.strip().lower()
 
-    # TODO: Solve markdown problem
-    update.message.reply_text(
-        f'Мы отправили письмо на почту **{user.email}**.\n'
-        'Пришлите код сообщением сюда.',
-        parse_mode=ParseMode.MARKDOWN,
-        reply_markup=ReplyKeyboardRemove(),
-    )
+        # Check email is in db
+        # if user.email is not None and email_input != user.email:
+        #     LOGGER.info(f'Another email exist.')
+        #     return update.message.reply_text(
+        #         f'Хммм. Есть информация, что у тебя другая почта: {user.email}.\n'
+        #         f'Скорее всего, это связано с тем, что ты вводили именно её ранее.'
+        #         f'Если опечатался или возникла другая ошибка - напиши @realkostin',
+        #         reply_markup=make_kb([
+        #             ['Добавиться в чат'], ['Показать чаты', 'Показать сервисы']
+        #         ])
+        #     )
+
+        LOGGER.info(f'Record email {email_input}.')
+        user.code = gen_random_string(N_CODE)
+        user.email = email_input
+        user.save()
+
+        message_text = f'Ваш пригласительный код: {user.code}.'
+        sent = send_email(email_input, message_text, LOGGER)
+        if sent:
+            LOGGER.info(f'Successful send message to {user.email}.')
+        else:
+            LOGGER.error(f'Cannot send message to {user.email}.')
+
+        # TODO: Solve markdown problem
+        update.message.reply_text(
+            f'Мы отправили письмо на почту <b>{user.email}<b>.\n'
+            'Пришлите код сообщением сюда.',
+            parse_mode=telegram.ParseMode.HTML,
+        )
 
 
 # TODO: Add to handler

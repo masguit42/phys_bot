@@ -21,7 +21,7 @@ class User(models.Model):
 
     code = models.CharField(max_length=5, **nb)
     status = models.CharField(max_length=32, **nb)
-    is_in_chat = models.BooleanField(default=False)
+    in_authorizing = models.BooleanField(default=False)
     authorized = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)

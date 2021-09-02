@@ -1,3 +1,7 @@
+import os
+
+MAIN_CHAT_ID = -int(os.getenv('MAIN_CHAT_ID'))
+
 SERVICES = '''
 |К|а|н|а|л| |П|р|о|ф|к|о|м|а| |с|т|у|д|е|н|т|о|в|:| |@|p|r|o|f|k|o|m|m|i|p|t|
 |В|а|к|а|н|с|и|и| |и| |р|е|з|ю|м|е|:| |@|p|h|y|s|t|e|c|h|c|a|r|e|e|r|c|h|a|n|n|e|l|
@@ -65,3 +69,13 @@ BLOGS = '''
 |О|т| |@|r|e|a|l|k|o|s|t|i|n|:| |@|y|e|s|t|e|r|d|a|y|I|t|w|a|t|
 |О|т| |@|g|i|p|e|r|k|u|b|c|h|i|k|:| |@|g|i|p|e|r|t|r|i|p|
 '''.replace('|', '')
+
+INVITE_LINK_MSG = ("""
+|#|N|E|W|_|I|N|V|I|T|A|T|I|O|N|
+|•| |C|h|a|n|n|e|l|:| |P|h|y|s|t|e|c|h|.|В|а|ж|н|о|е| |[|#|c|h|a|t|%d]|
+|•| |U|s|e|r|:| |{|f|i|r|s|t|_|n|a|m|e|}| |{|l|a|s|t|_|n|a|m|e|}| |[|@|{|u|s|e|r|n|a|m|e|}|]| |[|#|i|d|{|u|i|d|}|]|
+""" % MAIN_CHAT_ID).replace('|', '')
+
+RULES = '''
+||||||
+'''

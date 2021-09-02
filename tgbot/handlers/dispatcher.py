@@ -6,8 +6,7 @@ import telegram
 from telegram.ext import (
     Updater, Dispatcher, Filters,
     CommandHandler, MessageHandler,
-    InlineQueryHandler, CallbackQueryHandler,
-    ChosenInlineResultHandler,
+    CallbackQueryHandler,
 )
 
 from miptbot.settings import TELEGRAM_TOKEN
@@ -23,9 +22,6 @@ def setup_dispatcher(dp):
     # Broadcast
     dp.add_handler(CommandHandler("start", handlers.main_menu))
     dp.add_handler(CommandHandler("chats", handlers.show_chats))
-    # dp.add_handler(CommandHandler("services", handlers.show_services))
-    # dp.add_handler(CommandHandler("blogs", handlers.show_blogs))
-    # dp.add_handler(CommandHandler("help", handlers.help_menu))
 
     dp.add_handler(CallbackQueryHandler(handlers.authorize, pattern='authorize'))
     dp.add_handler(CallbackQueryHandler(handlers.show_chats, pattern='chats'))
@@ -33,17 +29,17 @@ def setup_dispatcher(dp):
     dp.add_handler(CallbackQueryHandler(handlers.show_services, pattern='services'))
 
     dp.add_handler(MessageHandler(Filters.regex('^(\w|\.)+@phystech\.edu$'), handlers.get_email))
-
+    dp.add_handler(MessageHandler(Filters.regex('^[A-Z0-9]{6}$'), handlers.get_code))
+    dp.add_handler(CallbackQueryHandler(handlers.send_invitation, pattern='agree'))
+    dp.add_handler(CallbackQueryHandler(handlers.main_menu, pattern='fun'))
 
     dp.add_handler(MessageHandler(Filters.regex('^(Добавиться в чат)$'), handlers.main_menu))
     dp.add_handler(MessageHandler(Filters.regex('^(Показать чаты)$'), handlers.main_menu))
     dp.add_handler(MessageHandler(Filters.regex('^(Показать сервисы)$'), handlers.main_menu))
 
-    # dp.add_handler(MessageHandler(Filters.regex('^[A-Z0-9]{5}$'), handlers.wait_for_code))
-    # dp.add_handler(MessageHandler(Filters.regex('^(Дa)$'), handlers.send_invitation))
-    # dp.add_handler(MessageHandler(Filters.text, handlers.send_invitation))
+    dp.add_handler(MessageHandler(Filters.text, handlers.main_menu))
 
-    # dp.add_error_handler(error.send_stacktrace_to_tg_chat)
+    dp.add_error_handler(error.send_stacktrace_to_tg_chat)
 
     return dp
 

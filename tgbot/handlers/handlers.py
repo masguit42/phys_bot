@@ -23,8 +23,9 @@ def main_menu(update, context):
 
     if chat_id == int(ADMIN_ID):
         user.authorized = False  # TODO: Remove debug with admin.
-        # user.in_authorizing = False
+        user.in_authorizing = False
         user.save()
+
     if user.in_authorizing:
         wrong_email(update, context)
     elif user.authorized:

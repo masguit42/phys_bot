@@ -228,7 +228,8 @@ def get_code(update, context):
                  'Нажми кнопку, чтобы я понял, что ты согласен.',
             reply_markup=InlineKeyboardMarkup.from_button(
                 InlineKeyboardButton('Согласен', callback_data='agree')
-            )
+            ),
+            parse_mode=telegram.ParseMode.HTML
         )
     else:
         context.bot.send_message(

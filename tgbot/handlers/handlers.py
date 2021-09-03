@@ -26,18 +26,6 @@ def main_menu(update, context):
         user.in_authorizing = False
         user.save()
 
-        context.bot.send_video(
-            chat_id=chat_id,
-            video='https://github.com/masguit42/mipt_bot/raw/bot-v2/media/invite_to_chat.gif',
-            caption='Добро пожаловать в канал Физтех.Важное: \n'
-                    'Смотри гиф-инструкцию по переходу в <b>Phystech. No Flood</b> выше\n'
-                    'Пожалуйста, нажми кнопку, как добавишься в чат.',
-            reply_markup=InlineKeyboardMarkup.from_button(
-                InlineKeyboardButton('🥳', callback_data='fun')  # TODO: Add handler.
-            ),
-            parse_mode=telegram.ParseMode.HTML
-        )
-
     if user.in_authorizing:
         wrong_email(update, context)
     elif user.authorized:

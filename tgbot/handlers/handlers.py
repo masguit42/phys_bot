@@ -46,7 +46,8 @@ def main_menu(update, context):
             text='👋',
             reply_markup=telegram.ReplyKeyboardRemove(),
         )
-        send_text(f'New user: {user}')
+        link_user = f'<a href="tg://user?id={user.user_id}">{user}</a>'
+        send_text(f'New user: {link_user}')
         context.bot.send_message(
             chat_id=chat_id,
             text='Этот бот позволит вам добавиться в общий чат физтехов, '
@@ -222,7 +223,7 @@ def get_code(update, context):
         context.bot.send_message(
             chat_id=chat_id,
             text='Проверка прошла успешно!\n'
-                 f'Пожалуйста, ознакомьтесь с правилами группы: \n'
+                 f'Пожалуйста, ознакомься с правилами группы: \n'
                  f'\n{texts.RULES}.\n'
                  'Нажми кнопку, чтобы я понял, что ты согласен.',
             reply_markup=InlineKeyboardMarkup.from_button(
@@ -247,7 +248,7 @@ def send_invitation(update, context):
             text='Добро пожаловать в канал Физтех.Важное: \n'
             f'{invite_link}\n'
             'Внизу с правой стороны будет кнопка для перехода в чат <b>Phystech. No Flood</b>\n'
-            'Пожалуйста, нажмите кнопку, как добавитесь в чат.',
+            'Пожалуйста, нажми кнопку, как добавишься в чат.',
             reply_markup=InlineKeyboardMarkup.from_button(
                 InlineKeyboardButton('🥳', callback_data='fun')  # TODO: Add handler.
             ),
@@ -258,9 +259,11 @@ def send_invitation(update, context):
         context.bot.sendMessage(
             chat_id=LOGS_CHANNEL_ID,
             text=texts.INVITE_LINK_MSG.format(
+                uid=user.user_id,
                 first_name=user.first_name,
                 last_name=user.last_name,
                 username=user.username,
-                uid=user.user_id
-            )
+
+            ),
+            parse_mode=telegram.ParseMode.HTML
         )

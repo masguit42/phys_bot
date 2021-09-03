@@ -223,9 +223,9 @@ def get_code(update, context):
         context.bot.send_message(
             chat_id=chat_id,
             text='Проверка прошла успешно!\n'
-                 f'Пожалуйста, ознакомься с правилами группы: \n'
-                 f'\n{texts.RULES}.\n'
-                 'Нажми кнопку, чтобы я понял, что ты согласен.',
+                 f'Пожалуйста, ознакомься с правилами чата Phystech.No Flood ©: \n'
+                 f'\n{texts.RULES}\n'
+                 'Нажми кнопку, чтобы подтвердить своё согласие.',
             reply_markup=InlineKeyboardMarkup.from_button(
                 InlineKeyboardButton('Согласен', callback_data='agree')
             ),
@@ -249,8 +249,8 @@ def send_invitation(update, context):
             video='https://github.com/masguit42/mipt_bot/raw/bot-v2/media/invite_to_chat.gif',
             caption='Добро пожаловать в канал Физтех.Важное: \n'
             f'{invite_link}\n'
-            'Внизу с правой стороны будет кнопка для перехода в чат <b>Phystech. No Flood</b>\n'
-            'Пожалуйста, нажми кнопку, как добавишься в чат.',
+            'Пожалуйста, нажми кнопку, как добавишься в канал. '
+            'Обрати внимание на гиф-инструкцию по переходу в <b>Phystech. No Flood ©</b>\n',
             reply_markup=InlineKeyboardMarkup.from_button(
                 InlineKeyboardButton('🥳', callback_data='fun')  # TODO: Add handler.
             ),

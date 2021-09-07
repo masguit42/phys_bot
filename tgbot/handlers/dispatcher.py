@@ -21,7 +21,7 @@ def setup_dispatcher(dp):
 
     # Broadcast
     dp.add_handler(CommandHandler("start", handlers.main_menu))
-    dp.add_handler(CommandHandler("chats", handlers.show_chats))
+    dp.add_handler(CommandHandler("menu", handlers.main_menu))
 
     dp.add_handler(CallbackQueryHandler(handlers.authorize, pattern='authorize'))
     dp.add_handler(CallbackQueryHandler(handlers.show_chats, pattern='chats'))

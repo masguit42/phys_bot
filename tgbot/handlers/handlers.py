@@ -18,14 +18,13 @@ from tgbot.handlers.bot_constants import (
 
 
 def main_menu(update, context):
-    if update.message is not None:
-        if update.message.chat.type != 'private':
-            return None
-    elif update.edited_message is not None:
-        if update.edited_message.chat.type != 'private':
+    user, created = User.get_user_and_created(update, context)
+    # DEBUG
+    # raise Exception(f'{update}')
+    if not created:
+        if update.effective_message.chat.type != 'private':
             return None
 
-    user, created = User.get_user_and_created(update, context)
     chat_id = user.user_id
 
     if chat_id == int(ADMIN_ID):
@@ -35,20 +34,7 @@ def main_menu(update, context):
 
     if user.in_authorizing:
         wrong_email(update, context)
-    elif user.authorized:
-        context.bot.send_message(
-            chat_id=chat_id,
-            text='Хотите посмотреть, какие есть чаты/сервисы/блоги у физтехов?',
-            reply_markup=InlineKeyboardMarkup.from_column(
-                [
-                    InlineKeyboardButton("Чаты", callback_data='chats'),
-                    InlineKeyboardButton("Сервисы", callback_data='services'),
-                    InlineKeyboardButton("Блоги", callback_data='blogs'),
-                ]
-            )
-        )
-    else:
-        # raise Exception(f'{update}')
+    elif not user.authorized:
         context.bot.send_message(
             chat_id=chat_id,
             text='👋',
@@ -64,6 +50,18 @@ def main_menu(update, context):
                  'чаты, каналы и сервисы в телеграме на Физтехе.',
             reply_markup=InlineKeyboardMarkup.from_button(
                 InlineKeyboardButton('Авторизоваться 👉👌🏻', callback_data='authorize')
+            )
+        )
+    else:
+        context.bot.send_message(
+            chat_id=chat_id,
+            text='Хотите посмотреть, какие есть чаты/сервисы/блоги у физтехов?',
+            reply_markup=InlineKeyboardMarkup.from_column(
+                [
+                    InlineKeyboardButton("Чаты", callback_data='chats'),
+                    InlineKeyboardButton("Сервисы", callback_data='services'),
+                    InlineKeyboardButton("Блоги", callback_data='blogs'),
+                ]
             )
         )
 

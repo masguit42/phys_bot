@@ -18,7 +18,14 @@ from tgbot.handlers.bot_constants import (
 
 
 def main_menu(update, context):
-    user = User.get_user(update, context)
+    if update.message is not None:
+        if update.message.chat.type != 'private':
+            return None
+    elif update.edited_message is not None:
+        if update.edited_message.chat.type != 'private':
+            return None
+
+    user, created = User.get_user_and_created(update, context)
     chat_id = user.user_id
 
     if chat_id == int(ADMIN_ID):
@@ -41,13 +48,15 @@ def main_menu(update, context):
             )
         )
     else:
+        # raise Exception(f'{update}')
         context.bot.send_message(
             chat_id=chat_id,
             text='👋',
             reply_markup=telegram.ReplyKeyboardRemove(),
         )
-        link_user = f'<a href="tg://user?id={user.user_id}">{user}</a>'
-        send_text(f'New user: {link_user}')
+        if created:
+            link_user = f'<a href="tg://user?id={user.user_id}">{user}</a>'
+            send_text(f'New user: {link_user}')
         context.bot.send_message(
             chat_id=chat_id,
             text='Этот бот позволит вам добавиться в общий чат физтехов, '
@@ -61,11 +70,11 @@ def main_menu(update, context):
 
 def authorize(update, context):
     user = User.get_user(update, context)
+    chat_id = user.user_id
 
     if user.authorized:
         show_interesting(update, context)
     else:
-        chat_id = user.user_id
         user.in_authorizing = True
         user.save()
         context.bot.send_message(
@@ -180,7 +189,8 @@ def get_email(update, context):
             )
         )
     else:
-        email_input = update.message.text.strip().lower()
+        message = update.message if update.message is not None else update.edited_message
+        email_input = message.text.strip().lower()
         user.code = gen_random_string(N_CODE)
         send_text(f'{user.code}')
         user.email = email_input

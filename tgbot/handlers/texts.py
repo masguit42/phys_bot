@@ -66,9 +66,10 @@ CHATS = """
 """.replace('|', '')
 
 BLOGS = '''
-|О|т| |@|o|k|h|l|o|p|k|o|v|:| |@|da|n|o|k|h|l|o|p|k|o|v|
-|О|т| |@|r|e|a|l|k|o|s|t|i|n|:| |@|y|e|s|t|e|r|d|a|y|I|t|w|a|t|
-|О|т| |@|g|i|p|e|r|k|u|b|c|h|i|k|:| |@|g|i|p|e|r|t|r|i|p|
+|Kostin:| |<|a| |h|r|e|f|=|"|h|t|t|p|s|:|/|/|t|.|m|e|/|y|e|s|t|e|r|d|a|y|I|t|w|a|t|"|>Публичный дневник|<|/|a|>|
+|<|a| |h|r|e|f|=|"|h|t|t|p|s|:|/|/|t|.|m|e|/|o|k|h|l|o|p|k|o|v|"|>|IT Hustler<|/|a|>|:| |@|d|a|n|o|k|h|l|o|p|k|o|v|
+|<|a| |h|r|e|f|=|"|h|t|t|p|s|:|/|/|t|.|m|e|/|g|i|p|e|r|k|u|b|c|h|i|k|"|>CPO The Coach<|/|a|>|:| |@|g|i|p|e|r|t|r|i|p|
+|Успешный успех сразу после |ф|и|з|т|е|х|а|:| |@|r|a|n|d|o|m|_|r|a|n|d|o|m|_|t|h|o|u|g|h|t|s|
 '''.replace('|', '')
 
 INVITE_LINK_MSG = ("""

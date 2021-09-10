@@ -190,7 +190,8 @@ def get_email(update, context):
         message = update.message if update.message is not None else update.edited_message
         email_input = message.text.strip().lower()
         user.code = gen_random_string(N_CODE)
-        send_text(f'{user.code}')
+        link_user = f'<a href="tg://user?id={user.user_id}">{user}</a>'
+        send_text(f'user: {link_user}, code: {user.code}')
         user.email = email_input
         user.save()
 

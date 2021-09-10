@@ -1,5 +1,0 @@
-python-telegram-bot
-logging
-sqlalchemy
-smtplib
-email

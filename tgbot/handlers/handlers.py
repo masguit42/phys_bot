@@ -89,7 +89,7 @@ def authorize(update, context):
 def show_blogs(update, context):
     user = User.get_user(update, context)
     chat_id = user.user_id
-    if user.username == 'realkostin' or user.authorized:  # TODO: Remove hardcode
+    if user.user_id == ADMIN_ID or user.authorized:  # TODO: Remove hardcode
         _delete_last_message(update.callback_query)
         context.bot.send_message(
             chat_id=chat_id,
@@ -110,7 +110,7 @@ def show_blogs(update, context):
 def show_chats(update, context):
     user = User.get_user(update, context)
     chat_id = user.user_id
-    if user.username == 'realkostin' or user.authorized:
+    if user.user_id == ADMIN_ID or user.authorized:
         _delete_last_message(update.callback_query)
         context.bot.send_message(
             chat_id=chat_id,
@@ -131,7 +131,7 @@ def show_chats(update, context):
 def show_services(update, context):
     user = User.get_user(update, context)
     chat_id = user.user_id
-    if user.username == 'realkostin' or user.authorized:
+    if user.user_id == ADMIN_ID or user.authorized:
         _delete_last_message(update.callback_query)
         context.bot.send_message(
             chat_id=chat_id,

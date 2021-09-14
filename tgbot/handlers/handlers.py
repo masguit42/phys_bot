@@ -17,6 +17,16 @@ from tgbot.handlers.bot_constants import (
 )
 
 
+def kb_chats_services_blogs():
+    return InlineKeyboardMarkup.from_column(
+        [
+            InlineKeyboardButton("Чаты", callback_data='chats'),
+            InlineKeyboardButton("Сервисы", callback_data='services'),
+            InlineKeyboardButton("Блоги", callback_data='blogs'),
+        ]
+    )
+
+
 def main_menu(update, context):
     user, created = User.get_user_and_created(update, context)
     # DEBUG
@@ -56,13 +66,7 @@ def main_menu(update, context):
         context.bot.send_message(
             chat_id=chat_id,
             text='Хотите посмотреть, какие есть чаты/сервисы/блоги у физтехов?',
-            reply_markup=InlineKeyboardMarkup.from_column(
-                [
-                    InlineKeyboardButton("Чаты", callback_data='chats'),
-                    InlineKeyboardButton("Сервисы", callback_data='services'),
-                    InlineKeyboardButton("Блоги", callback_data='blogs'),
-                ]
-            )
+            reply_markup=kb_chats_services_blogs()
         )
 
 
@@ -77,11 +81,7 @@ def authorize(update, context):
         user.save()
         context.bot.send_message(
             chat_id=chat_id,
-            text='Давай удостоверимся, что ты из МФТИ. '
-                 'Напиши свою почту на домене <b>phystеch.еdu</b> '
-                 'и мы вышлем на неё секретный код. '
-                 'Отправь сюда код с электронной почты '
-                 'и ты получишь уникальный доступ к чатикам 😉',
+            text=texts.MSG_AUTHORIZE,
             parse_mode=telegram.ParseMode.HTML
         )
 
@@ -95,13 +95,7 @@ def show_blogs(update, context):
             chat_id=chat_id,
             text=texts.BLOGS,
             parse_mode=telegram.ParseMode.HTML,
-            reply_markup=InlineKeyboardMarkup.from_column(
-                [
-                    InlineKeyboardButton("Чаты", callback_data='chats'),
-                    InlineKeyboardButton("Сервисы", callback_data='services'),
-                    InlineKeyboardButton("Блоги", callback_data='blogs'),
-                ]
-            )
+            reply_markup=kb_chats_services_blogs()
         )
     else:
         caught_unauthorized(update, context)
@@ -116,13 +110,7 @@ def show_chats(update, context):
             chat_id=chat_id,
             text=texts.CHATS,
             parse_mode=telegram.ParseMode.HTML,
-            reply_markup=InlineKeyboardMarkup.from_column(
-                [
-                    InlineKeyboardButton("Чаты", callback_data='chats'),
-                    InlineKeyboardButton("Сервисы", callback_data='services'),
-                    InlineKeyboardButton("Блоги", callback_data='blogs'),
-                ]
-            )
+            reply_markup=kb_chats_services_blogs()
         )
     else:
         caught_unauthorized(update, context)
@@ -137,13 +125,7 @@ def show_services(update, context):
             chat_id=chat_id,
             text=texts.SERVICES,
             parse_mode=telegram.ParseMode.HTML,
-            reply_markup=InlineKeyboardMarkup.from_column(
-                [
-                    InlineKeyboardButton("Чаты", callback_data='chats'),
-                    InlineKeyboardButton("Сервисы", callback_data='services'),
-                    InlineKeyboardButton("Блоги", callback_data='blogs'),
-                ]
-            )
+            reply_markup=kb_chats_services_blogs()
         )
     else:
         caught_unauthorized(update, context)
@@ -159,13 +141,7 @@ def show_interesting(update, context):
     context.bot.send_message(
         chat_id=chat_id,
         text='Посмотри, что интересного есть у физтехов',
-        reply_markup=InlineKeyboardMarkup.from_column(
-            [
-                InlineKeyboardButton("Чаты", callback_data='chats'),
-                InlineKeyboardButton("Сервисы", callback_data='services'),
-                InlineKeyboardButton("Блоги", callback_data='blogs'),
-            ]
-        )
+        reply_markup=kb_chats_services_blogs()
     )
 
 
@@ -200,8 +176,7 @@ def get_email(update, context):
 
         context.bot.send_message(
             chat_id=chat_id,
-            text=f'Мы отправили письмо на почту <b>{user.email}</b>.\n'
-                 'Пришлите код сообщением сюда.',
+            text=texts.MSG_SENT_EMAIL.format(f'{user.email}'),
             parse_mode=telegram.ParseMode.HTML,
         )
 
@@ -231,10 +206,7 @@ def get_code(update, context):
         user.save()
         context.bot.send_message(
             chat_id=chat_id,
-            text='Проверка прошла успешно!\n'
-                 f'Пожалуйста, ознакомься с правилами чата Phystech.No Flood ©: \n'
-                 f'\n{texts.RULES}\n'
-                 'Нажми кнопку, чтобы подтвердить своё согласие.',
+            text=texts.MSG_RULES,
             reply_markup=InlineKeyboardMarkup.from_button(
                 InlineKeyboardButton('Согласен', callback_data='agree')
             ),
@@ -255,9 +227,8 @@ def send_invitation(update, context):
         user.invite_link = invite_link
         context.bot.send_video(
             chat_id=chat_id,
-            video='https://github.com/masguit42/mipt_bot/raw/bot-v2/media/invite_to_chat.mp4',
-            caption='''Добро пожаловать в канал Физтех.Важное.
-            Обрати внимание на гиф-инструкцию по переходу в <b>Phystech. No Flood ©</b> ☝️''',
+            video=texts.URL_INVITE_VIDEO,
+            caption=texts.TEXT_INVITE,
             reply_markup=InlineKeyboardMarkup.from_button(
                 InlineKeyboardButton('Физтех.Важное', url=f'{invite_link}', callback_data='fun')  # TODO: Add handler.
             ),

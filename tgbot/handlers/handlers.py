@@ -253,15 +253,13 @@ def send_invitation(update, context):
     if user.authorized:
         invite_link = context.bot.exportChatInviteLink(CHANNEL_ID)
         user.invite_link = invite_link
-        context.bot.send_video(
+        context.bot.send_animation(
             chat_id=chat_id,
-            video='https://github.com/masguit42/mipt_bot/raw/bot-v2/media/invite_to_chat.gif',
+            animation='https://github.com/masguit42/mipt_bot/raw/bot-v2/media/invite_to_chat.gif',
             caption='Добро пожаловать в канал Физтех.Важное: \n'
-            f'{invite_link}\n'
-            'Пожалуйста, нажми кнопку, как добавишься в канал. '
             'Обрати внимание на гиф-инструкцию по переходу в <b>Phystech. No Flood ©</b>\n',
             reply_markup=InlineKeyboardMarkup.from_button(
-                InlineKeyboardButton('🥳', callback_data='fun')  # TODO: Add handler.
+                InlineKeyboardButton('Физтех.Важное', url=f'{invite_link}', callback_data='fun')  # TODO: Add handler.
             ),
             parse_mode=telegram.ParseMode.HTML
         )

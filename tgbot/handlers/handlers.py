@@ -253,11 +253,11 @@ def send_invitation(update, context):
     if user.authorized:
         invite_link = context.bot.exportChatInviteLink(CHANNEL_ID)
         user.invite_link = invite_link
-        context.bot.send_animation(
+        context.bot.send_video(
             chat_id=chat_id,
-            animation='https://github.com/masguit42/mipt_bot/raw/bot-v2/media/invite_to_chat.gif',
-            caption='Добро пожаловать в канал Физтех.Важное: \n'
-            'Обрати внимание на гиф-инструкцию по переходу в <b>Phystech. No Flood ©</b>\n',
+            video='https://github.com/masguit42/mipt_bot/raw/bot-v2/media/invite_to_chat.mp4',
+            caption='''Добро пожаловать в канал Физтех.Важное.
+            Обрати внимание на гиф-инструкцию по переходу в <b>Phystech. No Flood ©</b> ☝️''',
             reply_markup=InlineKeyboardMarkup.from_button(
                 InlineKeyboardButton('Физтех.Важное', url=f'{invite_link}', callback_data='fun')  # TODO: Add handler.
             ),

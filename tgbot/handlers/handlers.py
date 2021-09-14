@@ -1,6 +1,7 @@
 """
     This Bot is very cool.
 """
+import time
 import telegram
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
@@ -247,3 +248,6 @@ def send_invitation(update, context):
             ),
             parse_mode=telegram.ParseMode.HTML
         )
+
+        time.sleep(10)
+        main_menu(update, context)

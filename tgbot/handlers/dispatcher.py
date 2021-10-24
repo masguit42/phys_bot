@@ -29,7 +29,7 @@ def setup_dispatcher(dp):
     dp.add_handler(CallbackQueryHandler(handlers.show_blogs, pattern='blogs'))
     dp.add_handler(CallbackQueryHandler(handlers.show_services, pattern='services'))
 
-    dp.add_handler(MessageHandler(Filters.regex('^(\w|\.)+@phystech\.edu$'), handlers.get_email))
+    dp.add_handler(MessageHandler(Filters.regex('^(\w|\.|-)+@phystech\.edu$'), handlers.get_email))
     dp.add_handler(MessageHandler(Filters.regex('^[A-Z0-9]{6}$'), handlers.get_code))
     dp.add_handler(CallbackQueryHandler(handlers.send_invitation, pattern='agree'))
     dp.add_handler(CallbackQueryHandler(handlers.main_menu, pattern='fun'))

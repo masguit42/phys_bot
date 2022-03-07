@@ -8,7 +8,7 @@ nb = dict(null=True, blank=True)
 
 
 class User(models.Model):
-    user_id = models.IntegerField(primary_key=True)
+    user_id = models.PositiveBigIntegerField(primary_key=True)
     username = models.CharField(max_length=32, **nb)
     first_name = models.CharField(max_length=256)
     last_name = models.CharField(max_length=256, **nb)

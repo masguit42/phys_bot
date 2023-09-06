@@ -1,0 +1,9 @@
+services:
+  bot:
+    build: .
+    volumes:
+      - .:/phys_bot
+    command:
+      python run_pooling.py
+    restart:
+      always

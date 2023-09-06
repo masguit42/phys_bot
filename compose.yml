@@ -4,6 +4,8 @@ services:
     volumes:
       - .:/phys_bot
     command:
-      python run_pooling.py
+      bash -c "python manage.py makemigrations &&
+               python manage.py migrate --run-syncdb &&
+               python run_pooling.py"
     restart:
       always

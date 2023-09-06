@@ -9,7 +9,7 @@ N_CODE = int(os.getenv('N_CODE'))
 EMAIL_BOT = os.getenv("EMAIL_BOT")
 PASSWORD_EMAIL_BOT = os.getenv("PASSWORD_EMAIL_BOT")
 
-SMTP_SERVER = 'smtp.gmail.com'
+SMTP_SERVER = 'smtp.yandex.ru'
 SMTP_PORT = 587
 
 N_MINUTES_PER_INVITE = 2

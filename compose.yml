@@ -1,0 +1,11 @@
+services:
+  bot:
+    build: .
+    volumes:
+      - .:/phys_bot
+    command:
+      bash -c "python manage.py makemigrations &&
+               python manage.py migrate --run-syncdb &&
+               python run_pooling.py"
+    restart:
+      always
